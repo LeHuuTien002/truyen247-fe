@@ -1,0 +1,28 @@
+import React, { useState } from 'react';
+
+const SearchBar = ({ onSearch }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSearch = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        onSearch(value); // Gọi hàm onSearch để truyền giá trị tìm kiếm lên component cha
+    };
+
+    return (
+        <div className="input-group mb-3">
+            <input
+                type="text"
+                className="form-control"
+                placeholder="Tìm kiếm theo tên..."
+                value={searchTerm}
+                onChange={handleSearch}
+            />
+            <button className="btn btn-outline-warning" type="button">
+                Tìm kiếm
+            </button>
+        </div>
+    );
+};
+
+export default SearchBar;
