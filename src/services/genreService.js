@@ -1,8 +1,10 @@
 import axios from 'axios';
 
-const getAllGenre = async (token) => {
+const token = localStorage.getItem('token');
+
+const getAllGenre = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/api/admin/theloais', {
+        const response = await axios.get('http://localhost:8080/api/admin/genres', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -13,7 +15,20 @@ const getAllGenre = async (token) => {
     }
 };
 
-const getAllGenreByComicId = async (comicId, token) => {
+const getAllGenreName = async () => {
+    try {
+        const response = await axios.get('http://localhost:8080/api/genres', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data; // Trả về dữ liệu nếu thành công
+    } catch (error) {
+        throw new Error('Có lỗi xảy ra khi tải dữ liệu!'); // Ném lỗi để xử lý ở component
+    }
+};
+
+const getAllGenreByComicId = async (comicId) => {
     try {
         const response = await axios.get(`http://localhost:8080/api/comic/${comicId}/genres`, {
             headers: {
@@ -27,9 +42,9 @@ const getAllGenreByComicId = async (comicId, token) => {
 }
 
 // Hàm tạo thể loại mới
-const createGenre = async (name, description, token) => {
+const createGenre = async (name, description) => {
     try {
-        const response = await axios.post('http://localhost:8080/api/admin/theloais',
+        const response = await axios.post('http://localhost:8080/api/admin/genres',
             {name, description},
             {
                 headers: {
@@ -48,10 +63,10 @@ const createGenre = async (name, description, token) => {
 }
 
 // Hàm cập nhật thể loại
-const updateGenre = async (id, name, description, token) => {
+const updateGenre = async (id, name, description) => {
     try {
         const response = await axios.put(
-            `http://localhost:8080/api/admin/theloais/${id}`,
+            `http://localhost:8080/api/admin/genres/${id}`,
             {name, description},
             {
                 headers: {
@@ -71,9 +86,9 @@ const updateGenre = async (id, name, description, token) => {
     }
 };
 
-const deleteGenre = async (id, token) => {
+const deleteGenre = async (id) => {
     try {
-        const response = await axios.delete(`http://localhost:8080/api/admin/theloais/${id}`, {
+        const response = await axios.delete(`http://localhost:8080/api/admin/genres/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             }
@@ -84,5 +99,5 @@ const deleteGenre = async (id, token) => {
         throw new Error('Đã xảy ra lỗi không xác định.');
     }
 }
-export {getAllGenre, updateGenre, createGenre, deleteGenre, getAllGenreByComicId};
+export {getAllGenre, updateGenre, createGenre, deleteGenre, getAllGenreByComicId, getAllGenreName};
 

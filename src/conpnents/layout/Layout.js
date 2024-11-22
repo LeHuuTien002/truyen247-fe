@@ -1,10 +1,13 @@
-import {Link, Outlet, useLocation} from "react-router-dom";
+import {Link, Outlet, useLocation, useNavigate} from "react-router-dom";
 import {useCallback, useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {clearMessage} from "../../actions/message";
 import {logout} from "../../actions/auth";
 import EventBus from "../../common/EventBus";
 import AuthVerify from "../../common/AuthVerify";
+import {getAllGenreName} from "../../services/genreService";
+import chunkArray from "../utils/chunkArray";
+import {getAllComicsIsActive} from "../../services/comicService";
 
 const Layout = () => {
     // State để điều khiển hiển thị bảng Admin trong navbar
@@ -47,6 +50,62 @@ const Layout = () => {
             EventBus.remove("logout");
         }
     }, [currentUser, logOut]);
+
+    const [genreList, setGenreList] = useState([]);
+    const loadGenreNameList = async () => {
+        try {
+            const data = await getAllGenreName();
+            setGenreList(data);
+        } catch (error) {
+            console.log(error.message)
+        }
+    };
+    const genreGroups = chunkArray(genreList, 5);
+    useEffect(() => {
+        loadGenreNameList();
+    }, []);
+
+    const [comicList, setComicList] = useState([]);
+    const [suggestions, setSuggestions] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const navigate = useNavigate();
+
+    const handleNavigateComicDetailClick = (id) => {
+        navigate(`/comics/${id}`);
+        setSearchTerm('');
+        setSuggestions([]);
+    };
+
+    const handleReset = () => {
+        setSearchTerm('');
+        setSuggestions([]);
+    }
+
+    const loadComic = async () => {
+        try {
+            const data = await getAllComicsIsActive();
+            console.log(data)
+            setComicList(data);
+        } catch (error) {
+            console.log(error.message)
+        }
+    };
+    useEffect(() => {
+        loadComic();
+    }, []);
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+
+        if (value.trim() === "") {
+            setSuggestions([]);
+        } else {
+            const filteredSuggestions = comicList.filter((item) =>
+                item.name.toLowerCase().includes(value.toLowerCase())
+            );
+            setSuggestions(filteredSuggestions);
+        }
+    };
     return (
         <>
             <div>
@@ -58,10 +117,36 @@ const Layout = () => {
                         </Link>
                         <div className="d-flex justify-content-end collapse navbar-collapse">
                             <div className="flex-grow-1 ps-5 pe-5 d-none d-sm-block d-md-block d-lg-block">
-                                <form className="d-flex">
-                                    <input className="form-control me-2" type="text" placeholder="Tìm truyện..."/>
-                                    <button className="btn btn-outline-warning" type="button">Search</button>
-                                </form>
+                                <div className="position-relative">
+                                    <div className="d-flex">
+                                        <input
+                                            value={searchTerm}
+                                            onChange={handleInputChange}
+                                            className="form-control me-2"
+                                            type="text"
+                                            placeholder="Tìm truyện..."
+                                        />
+                                        <Link to={`/search/${searchTerm}`} onClick={() => handleReset()}
+                                              className="btn btn-outline-warning"
+                                              type="button">Search
+                                        </Link>
+                                    </div>
+                                    {suggestions.length > 0 && (
+                                        <ul className="list-group position-absolute w-100 mt-1 shadow"
+                                            style={{zIndex: 1050}}>
+                                            {suggestions.map((item) => (
+                                                <li
+                                                    key={item.id}
+                                                    className="list-group-item list-group-item-action"
+                                                    style={{cursor: "pointer"}}
+                                                    onClick={() => handleNavigateComicDetailClick(item.id)}
+                                                >
+                                                    <strong>{item.name}</strong> - {item.author}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
                             </div>
                             <div className="d-none d-sm-block d-md-block d-lg-block">
                                 <span className="dropdown dropdown-menu-end text-end">
@@ -115,10 +200,19 @@ const Layout = () => {
                         <div className="collapse navbar-collapse" id="collapsibleNavbar">
                             <ul className="navbar-nav">
                                 <div className="d-block d-sm-none d-md-none d-lg-none">
-                                    <form className="d-flex ">
-                                        <input className="form-control me-2" type="text" placeholder="Tìm truyện..."/>
-                                        <button className="btn btn-outline-warning" type="button">Search</button>
-                                    </form>
+                                    <div className="d-flex ">
+                                        <input
+                                            value={searchTerm}
+                                            onChange={handleInputChange}
+                                            className="form-control me-2"
+                                            type="text"
+                                            placeholder="Tìm truyện..."
+                                        />
+                                        <Link to={`/search/${searchTerm}`} onClick={() => handleReset()}
+                                              className="btn btn-outline-warning"
+                                              type="button">Search
+                                        </Link>
+                                    </div>
                                 </div>
                                 <li className="nav-item">
                                     <Link to={'/favorites'} className="nav-link" href="#">TRUYỆN YÊU THÍCH</Link>
@@ -130,27 +224,17 @@ const Layout = () => {
                                     <a className="nav-link dropdown-toggle" href="#" role="button"
                                        data-bs-toggle="dropdown">THỂ LOẠI</a>
                                     <ul className="dropdown-menu">
-                                        <li>
-                                            <div className="d-flex justify-content-space-between">
-                                                <a className="dropdown-item" href="#">Historical</a>
-                                                <a className="dropdown-item" href="#">Shoujo</a>
-                                                <a className="dropdown-item" href="#">TruyenQQ</a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div className="d-flex justify-content-space-between">
-                                                <a className="dropdown-item" href="#">Historical</a>
-                                                <a className="dropdown-item" href="#">Shoujo</a>
-                                                <a className="dropdown-item" href="#">TruyenQQ</a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div className="d-flex justify-content-space-between">
-                                                <a className="dropdown-item" href="#">Historical</a>
-                                                <a className="dropdown-item" href="#">Shoujo</a>
-                                                <a className="dropdown-item" href="#">TruyenQQ</a>
-                                            </div>
-                                        </li>
+                                        {genreGroups.map((group, index) => (
+                                            <li key={index}>
+                                                <div className="d-flex justify-content-between">
+                                                    {group.map((genre) => (
+                                                        <Link to={`/genre/${genre.genreName}`} key={genre.genreId}
+                                                              className="dropdown-item"
+                                                              href="#">{genre.genreName}</Link>
+                                                    ))}
+                                                </div>
+                                            </li>
+                                        ))}
                                     </ul>
                                 </li>
                                 <div className="d-block d-sm-none d-md-none d-lg-none">

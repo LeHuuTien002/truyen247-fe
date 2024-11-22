@@ -1,7 +1,7 @@
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {createPage, deletePage, getAllPageByChapterId, getChapterById, updatePage} from "../../services/pageService";
-import Alert from "../Alert";
+import Alert from "../utils/Alert";
 import SearchBar from "../SearchBar";
 
 const Pages = () => {
@@ -25,31 +25,14 @@ const Pages = () => {
         setCurrentPage(pageNumber);
     };
 
-    const {id} = useParams();
+    const {comicId, chapterId} = useParams();
     const [pageId, setPageId] = useState(null);
-    const token = localStorage.getItem("token");
     const [chapter, setChapter] = useState(null);
     const [inputKey, setInputKey] = useState(Date.now()); // Key để làm mới trường file
-
-    const [preview, setPreview] = useState(null);
 
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
 
-    const [pageNumber, setPageNumber] = useState(null);
-    const [imageUrl, setImageUrl] = useState(null);
-
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        setImageUrl(selectedFile);
-
-        // Tạo URL xem trước
-        if (selectedFile) {
-            setPreview(URL.createObjectURL(selectedFile));
-        } else {
-            setPreview(null);
-        }
-    };
 
     const handleSearch = (searchTerm) => {
         if (searchTerm === '') {
@@ -70,14 +53,11 @@ const Pages = () => {
 
     const handleEditClick = (page) => {
         setPageId(page.id);
-        setPageNumber(page.pageNumber);
-        setImageUrl(page.imageUrl);
     }
 
     const loadChapter = async () => {
         try {
-            const data = await getChapterById(id, token);
-            console.log(data)
+            const data = await getChapterById(chapterId);
             setChapter(data);
         } catch (error) {
             setErrorMessage(error.message);
@@ -86,7 +66,7 @@ const Pages = () => {
 
     const loadPage = async () => {
         try {
-            const data = await getAllPageByChapterId(id, token);
+            const data = await getAllPageByChapterId(chapterId);
             const sortedData = data.sort((a, b) => b.pageNumber - a.pageNumber);
             setPageList(sortedData);
         } catch (error) {
@@ -94,14 +74,30 @@ const Pages = () => {
         }
     };
 
+    const [files, setFiles] = useState([]);
+    const [previewUrls, setPreviewUrls] = useState([]); // Lưu các URL để hiển thị ảnh xem trước
+
+    const handleFileChange = (event) => {
+        const selectedFiles = Array.from(event.target.files);
+        setFiles(selectedFiles);
+
+        // Tạo URL cho các file được chọn để xem trước
+        const urls = selectedFiles.map((file) => URL.createObjectURL(file));
+        setPreviewUrls(urls);
+    };
+
     const handleCreateSubmit = async (e) => {
         setErrorMessage('');
         setErrorMessage('');
         e.preventDefault();
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append("files", files[i]);
+        }
         try {
             const {
                 success: successMessage
-            } = await createPage(id, pageNumber, imageUrl, token);
+            } = await createPage(chapterId, formData);
             loadPage();
             setSuccessMessage(successMessage);
             handleResetClick();
@@ -117,7 +113,7 @@ const Pages = () => {
         try {
             const {
                 success: successMessage
-            } = await updatePage(pageId, pageNumber, imageUrl, token);
+            } = await updatePage(pageId);
             setSuccessMessage(successMessage);
             loadPage();
             handleResetClick();
@@ -131,7 +127,7 @@ const Pages = () => {
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const {success: successMessage} = await deletePage(id, pageId, token);
+            const {success: successMessage} = await deletePage(chapterId, pageId);
             loadPage();
             setSuccessMessage(successMessage);
         } catch (error) {
@@ -140,18 +136,19 @@ const Pages = () => {
     };
 
     const handleResetClick = () => {
-        setPageNumber('');
-        setImageUrl(null);
-        setPreview(null)
         setInputKey(Date.now()); // Đặt lại key để làm mới trường file
     }
 
     useEffect(() => {
         loadChapter();
         loadPage();
-    }, [token, id]);
+    }, [chapterId]);
     return (
         <div className="container bg-dark p-5">
+            <span> <Link to={`/admin/comics/${comicId}/chapters`} className="text-decoration-none">Quản lý chương </Link>
+                <i className="bi bi-chevron-double-right small"></i>
+                <span className="text-warning"> Danh sách trang</span>
+            </span>
             <h2 className="text-warning text-center">QUẢN LÝ CHƯƠNG</h2>
             <div className="container mt-3">
                 <h5 className="text-center">Chương {chapter?.chapterNumber}: <span>{chapter?.title}</span></h5>
@@ -184,28 +181,34 @@ const Pages = () => {
                                         aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
-                                {/*<Comic/>*/}
                                 <form onSubmit={handleCreateSubmit} className="container">
-                                    <div className="mb-3">
-                                        <label htmlFor="comicName" className="form-label">Số trang: </label>
-                                        <input type="number" value={pageNumber}
-                                               onChange={(e) => setPageNumber(e.target.value)}
-                                               className="form-control"
-                                               required id="comicName" placeholder="Nhập tên truyện mới"/>
-                                    </div>
-
-                                    {preview ? (
-                                        <img className="mb-3" key={inputKey} src={preview} style={{width: "100px"}} loading="lazy"
-                                             alt="Ảnh bìa xem trước"/>) : (
-                                        <img className="mb-3" key={inputKey} src={imageUrl} style={{width: "100px"}} loading="lazy"/>
+                                    {previewUrls.length > 0 && (
+                                        <div className="mb-3">
+                                            <h6 className="mb-3">Ảnh Xem Trước:</h6>
+                                            <div className="d-flex flex-wrap gap-3">
+                                                {previewUrls.map((url, index) => (
+                                                    <img
+                                                        key={index}
+                                                        src={url}
+                                                        alt={`Preview ${index + 1}`}
+                                                        className="rounded shadow-sm border"
+                                                        style={{
+                                                            width: "50px",
+                                                            objectFit: "cover",
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
                                     )}
                                     <div className="mb-3 input-group">
                                         <label htmlFor="coverPhoto" className="input-group-text">Tải
                                             lên trang truyện: </label>
                                         <input type="file"
+                                               multiple
                                                onChange={handleFileChange} required
                                                className="form-control"
-                                               src={imageUrl}
+                                            // src={imageUrl}
                                                key={inputKey}
                                                id="coverPhoto"/>
                                     </div>
@@ -238,20 +241,13 @@ const Pages = () => {
                         {currentRows?.length > 0 ? (currentRows.map((page, index) => (
                             <tr className="cursor-pointer" key={index}>
                                 <td>{page.pageNumber}</td>
-                                <td><img src={page.imageUrl} alt={page.pageNumber} style={{width: "100px"}} loading="lazy"/>
+                                <td><img src={page.imageUrl} alt={page.pageNumber} style={{width: "100px"}}
+                                         loading="lazy"/>
                                 </td>
                                 <td>{page.createAt}</td>
                                 <td>{page.updateAt === null ? "Chưa cập nhật" : page.updateAt}</td>
                                 <td>
                                     <div className="d-flex justify-content-center">
-                                        {/*Update*/}
-                                        <button type="button" className="btn btn-outline-success me-2"
-                                                onClick={() => handleEditClick(page)}
-                                                data-bs-toggle="modal"
-                                                title="Cập nhật"
-                                                data-bs-target="#staticBackdrop1">
-                                            <i className="bi bi-pencil-square"></i>
-                                        </button>
                                         {successMessage && (
                                             <Alert
                                                 message={successMessage}
@@ -266,66 +262,6 @@ const Pages = () => {
                                                 onClose={() => setErrorMessage('')}
                                             />
                                         )}
-                                        <div className="modal fade" id="staticBackdrop1" data-bs-backdrop="static"
-                                             data-bs-keyboard="false" tabIndex="-1"
-                                             aria-labelledby="staticBackdropLabel"
-                                             aria-hidden="true">
-                                            <div className="modal-dialog modal-lg modal-dialog-scrollable">
-                                                <div className="modal-content">
-                                                    <div className="modal-header">
-                                                        <h5 className="modal-title" id="staticBackdropLabel">Cập nhật
-                                                            truyện</h5>
-                                                        <button type="button" className="btn-close"
-                                                                data-bs-dismiss="modal"
-                                                                aria-label="Close"></button>
-                                                    </div>
-                                                    <div className="modal-body">
-                                                        <form onSubmit={handleUpdateSubmit} className="container">
-                                                            <div className="mb-3">
-                                                                <label htmlFor="comicName" className="form-label">Số
-                                                                    trang: </label>
-                                                                <input type="number" min="1" value={pageNumber}
-                                                                       onChange={(e) => setPageNumber(e.target.value)}
-                                                                       className="form-control"
-                                                                       id="comicName"
-                                                                       placeholder="Nhập số trang"/>
-                                                            </div>
-                                                            <div className="mb-3">
-                                                                {preview ? (
-                                                                    <img key={inputKey} src={preview} loading="lazy"
-                                                                         style={{width: "100px"}}
-                                                                         alt="Ảnh bìa xem trước"/>) : (
-                                                                    <img key={inputKey} src={imageUrl} loading="lazy"
-                                                                         style={{width: "100px"}}/>
-                                                                )}
-                                                            </div>
-                                                            <div className="mb-3 input-group">
-                                                                <label htmlFor="coverPhoto"
-                                                                       className="input-group-text">Tải
-                                                                    lên ảnh bìa: </label>
-                                                                <input type="file"
-                                                                       onChange={handleFileChange} required
-                                                                       className="form-control"
-                                                                       src={imageUrl}
-                                                                       key={inputKey}
-                                                                       id="coverPhoto"/>
-                                                            </div>
-                                                            <button type="submit"
-                                                                    className="btn btn-outline-warning form-control">Cập
-                                                                nhật
-                                                                truyện
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                    <div className="modal-footer">
-                                                        <button type="button" className="btn btn-outline-danger"
-                                                                data-bs-dismiss="modal">Close
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/*Delete*/}
                                         <button type="button"
                                                 onClick={() => handleEditClick(page)}
                                                 className="btn btn-outline-danger"

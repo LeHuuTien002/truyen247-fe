@@ -62,14 +62,14 @@ const History = () => {
 
 
     const handleNavigatePages = (comicId, chapterId) => {
-        navigate(`/${comicId}/comicDetail/chapter/${chapterId}/pages`);
+        navigate(`/comics/${comicId}/chapters/${chapterId}/pages`);
     };
 
     return (
         <div className="container bg-dark p-5">
             <span> <Link to="/" className="text-decoration-none">Trang chủ </Link>
                 <i className="bi bi-chevron-double-right small"></i>
-                <span className="text-warning"> Truyện yêu thích</span>
+                <span className="text-warning"> Lịch sử đọc</span>
             </span>
             <div className="row">
                 {currentRows?.length > 0 ? (currentRows.map((history) => (

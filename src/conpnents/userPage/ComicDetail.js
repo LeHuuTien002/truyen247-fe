@@ -6,6 +6,8 @@ import SearchBar from "../SearchBar";
 import {getChaptersByComicId} from "../../services/chapterService";
 import {timeSince} from "../utils/timeUtils";
 import {addFavorite, checkIsFavorite, removeFavorite} from "../../services/favoriteService";
+import {getUserId} from "../utils/auth";
+import {addComment, deleteComment, fetchComments, replyToComment} from "../../services/commentService";
 
 const ComicDetail = () => {
     const [chapterList, setChapterList] = useState([]);
@@ -34,18 +36,87 @@ const ComicDetail = () => {
     const [genreList, setGenreList] = useState(null);
     const [isFavorite, setIsFavorite] = useState(false);
 
-    // Lấy chuỗi JSON từ localStorage
-    const userString = localStorage.getItem("user");
-    // Chuyển chuỗi JSON thành object
-    const userObject = JSON.parse(userString);
-    // Truy cập id
-    const userId = userObject?.id;
+    const [comments, setComments] = useState([]);
+    const [content, setContent] = useState("");
+    const [replyContent, setReplyContent] = useState("");
+    const [replyTo, setReplyTo] = useState(null);
+
+    const userId = getUserId();
+
+    const handleReplySubmit = async () => {
+        if (replyContent.trim() === "") {
+            alert("Bạn hãy nhập nội dung!");
+            return;
+        }
+        if (!replyTo || !replyContent) return;
+        const payload = {
+            parentCommentId: replyTo,
+            comicId: comicId,
+            userId: userId,
+            content: replyContent,
+        };
+        try {
+            const data = await replyToComment(payload);
+            await loadComments();
+            // Reset nội dung phản hồi và trạng thái form
+            setReplyContent("");
+            setReplyTo(null);
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+    const handleAddComment = async () => {
+        if (content.trim() === "") {
+            alert("Bạn hãy nhập nội dung!");
+            return;
+        }
+        const comment = {comicId, userId, content};
+        try {
+            const data = await addComment(comment);
+            setContent("");
+            await loadComments();
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
+    const handleDeleteComment = async (id) => {
+        try {
+            const data = await deleteComment(id, userId);
+            setContent("");
+            await loadComments();
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
+    const loadComments = async () => {
+        try {
+            const data = await fetchComments(comicId);
+            console.log(data)
+            setComments(data);
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
+    useEffect(() => {
+        loadComments();
+    }, [comicId]);
+
+    // Lấy `chapterNumber` nhỏ nhất, lớn nhất
+    const minChapterNumber = Math.min(...chapterList.map(chapter => chapter.chapterNumber));
+    const maxChapterNumber = Math.max(...chapterList.map(chapter => chapter.chapterNumber));
+    // Tìm ID tương ứng
+    const minChapter = chapterList.find(chapter => chapter.chapterNumber === minChapterNumber);
+    const maxChapter = chapterList.find(chapter => chapter.chapterNumber === maxChapterNumber);
 
     useEffect(() => {
         // Kiểm tra xem truyện này có được yêu thích hay không
         const fetchIsFavorite = async () => {
             try {
-                const response = await checkIsFavorite(userId, comicId);
+                const response = await checkIsFavorite(getUserId(), comicId);
                 setIsFavorite(response.data); // true hoặc false
             } catch (error) {
                 console.error("Error checking favorite status:", error);
@@ -53,17 +124,17 @@ const ComicDetail = () => {
         };
 
         fetchIsFavorite();
-    }, [userId, comicId]);
+    }, [comicId]);
 
     // Xử lý khi bấm nút yêu thích/bỏ yêu thích
     const handleFavoriteClick = async () => {
         try {
             if (isFavorite) {
                 // Gửi yêu cầu xóa yêu thích
-                await removeFavorite(userId, comicId);
+                await removeFavorite(getUserId(), comicId);
             } else {
                 // Gửi yêu cầu thêm yêu thích
-                await addFavorite(userId, comicId);
+                await addFavorite(getUserId(), comicId);
             }
 
             // Đảo trạng thái yêu thích
@@ -112,7 +183,7 @@ const ComicDetail = () => {
 
     const loadGenreByComicId = async () => {
         try {
-            const data = await getAllGenreByComicId(comicId, token);
+            const data = await getAllGenreByComicId(comicId);
             setGenreList(data.genres)
         } catch (error) {
             console.log(error.message);
@@ -123,7 +194,7 @@ const ComicDetail = () => {
         loadComic();
         loadChapter();
         loadGenreByComicId();
-    }, [token, comicId]);
+    }, [comicId]);
 
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -141,20 +212,165 @@ const ComicDetail = () => {
     // Hàm xử lý sắp xếp
     const handleSort = () => {
         const sortedChapters = [...chapterList].sort((a, b) => {
-            return isAscending ? a.id - b.id : b.id - a.id; // Tăng dần/giảm dần theo id
+            return isAscending ? a.chapterNumber - b.chapterNumber : b.chapterNumber - a.chapterNumber; // Tăng dần/giảm dần theo chapterNumber
         });
         setChapterList(sortedChapters); // Cập nhật danh sách đã sắp xếp
         setIsAscending(!isAscending); // Đổi trạng thái sắp xếp
     };
 
+    const handleNavigateMinChapter = () => {
+        navigate(`/comics/${comicId}/chapters/${minChapter.id}/pages`);
+    };
+
+    const handleNavigateMaxChapter = () => {
+        navigate(`/comics/${comicId}/chapters/${maxChapter.id}/pages`);
+    };
+
     const navigate = useNavigate();
     const handleNavigatePages = (id) => {
-        navigate(`/${comicId}/comicDetail/chapter/${id}/pages`);
+        navigate(`/comics/${comicId}/chapters/${id}/pages`);
+    };
+    const [expandedComments, setExpandedComments] = useState({});
+
+    // Hàm xử lý khi nhấn "Xem các phản hồi"
+    const toggleReplies = (commentId) => {
+        setExpandedComments((prev) => ({
+            ...prev,
+            [commentId]: !prev[commentId], // Đảo ngược trạng thái mở/đóng
+        }));
+    };
+    const renderComments = (commentList, depth = 0) => {
+        return commentList.map((comment) => {
+            const isExpanded = expandedComments[comment.id] || false; // Kiểm tra trạng thái mở/đóng
+
+            return (
+                <div className="container">
+                    <div
+                        key={comment.id}
+                        className="position-relative row g-2 mb-1 align-items-start mt-1"
+                        style={{marginLeft: `${depth * 10}px`}} // Giảm thụt lề
+                    >
+                        {/* Đường kẻ nối bình luận con */}
+                        {depth > 0 && (
+                            <div
+                                className="position-absolute border-start"
+                                style={{
+                                    top: "0",
+                                    left: "-10px",
+                                    width: "0.5px",
+                                    height: "100%",
+                                    borderColor: "#ddd",
+                                }}
+                            ></div>
+                        )}
+
+                        {/* Avatar */}
+                        <div className="col-auto">
+                            <img
+                                src={`https://i.pravatar.cc/40?img=${comment.user.id}`}
+                                alt="Avatar"
+                                className="rounded-circle img-fluid"
+                                style={{width: "40px", height: "40px"}}
+                            />
+                        </div>
+
+                        {/* Comment Content */}
+                        <div className="col">
+                            <div className="p-2 rounded-3 bg-secondary">
+                                <h6
+                                    className="m-0 fw-bold text-white"
+                                    style={{fontSize: "1rem"}}
+                                >
+                                    {comment.user.username}
+                                </h6>
+                                <p className="m-0 text-white" style={{fontSize: "0.95rem"}}>
+                                    {comment.content}
+                                </p>
+                            </div>
+                            <div
+                                className="d-flex flex-wrap mt-1 align-items-center text-secondary"
+                                style={{fontSize: "0.85rem"}}
+                            >
+                                <span className="me-3">{timeSince(comment.createAt)}</span>
+                                <span
+                                    className="me-3"
+                                    style={{cursor: "pointer"}}
+                                    onClick={() => alert("Thích")}
+                                >
+                    Thích
+                </span>
+                                <span
+                                    className="me-3"
+                                    style={{cursor: "pointer"}}
+                                    onClick={() => setReplyTo(comment.id)}
+                                >
+                    Phản hồi
+                </span>
+                                {comment.user.id === userId && (
+                                    <span
+                                        className="text-danger"
+                                        style={{cursor: "pointer"}}
+                                        onClick={() => handleDeleteComment(comment.id)}
+                                    >
+                        Xóa
+                    </span>
+                                )}
+                            </div>
+
+                            {/* Render reply form if replyTo matches comment ID */}
+                            {replyTo === comment.id && (
+                                <div className="mt-3">
+                    <textarea
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        className="form-control"
+                        placeholder="Viết phản hồi..."
+                        rows={2}
+                        required
+                    ></textarea>
+                                    <div className="mt-2 d-flex justify-content-end">
+                                        <button
+                                            onClick={handleReplySubmit}
+                                            type="submit"
+                                            className="btn btn-primary btn-sm me-2"
+                                        >
+                                            Gửi
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={() => setReplyTo(null)}
+                                        >
+                                            Hủy
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Show replies toggle button */}
+                            {comment.replies && comment.replies.length > 0 && (
+                                <span
+                                    className="text-warning d-block mt-2"
+                                    style={{cursor: "pointer", fontSize: "0.9rem"}}
+                                    onClick={() => toggleReplies(comment.id)}
+                                >
+                    {isExpanded ? "Thu gọn phản hồi" : "Xem các phản hồi"}
+                </span>
+                            )}
+
+                            {/* Render nested replies */}
+                            {isExpanded && comment.replies && renderComments(comment.replies, depth + 1)}
+                        </div>
+                    </div>
+                </div>
+
+            )
+        });
     };
     return (
         <div className="container bg-dark p-5">
             <span> <Link to="/" className="text-decoration-none">Trang chủ </Link>
-                <i className="bi bi-chevron-double-right"></i>
+                <i className="bi bi-chevron-double-right small"></i>
                 <span className="text-warning"> Chi tiết truyện</span>
             </span>
             <h5 className="text-center mt-3">{comicDetail?.name}</h5>
@@ -171,8 +387,12 @@ const ComicDetail = () => {
                         <span className="d-block text-warning mt-3"><i className="bi bi-wifi"></i> Tình trạng: </span>
                         <span className="d-block text-warning mt-3"><i
                             className="bi bi-tags-fill"></i> Thể loại: </span>
-                        <button type="button" className="btn btn-outline-warning d-block mt-3">Đọc từ đầu</button>
-                        <button type="button" className="btn btn-outline-warning d-block mt-3">Đọc mới nhất</button>
+                        <button onClick={() => handleNavigateMinChapter()} type="button"
+                                className="btn btn-outline-warning d-block mt-3">Đọc từ đầu
+                        </button>
+                        <button onClick={() => handleNavigateMaxChapter()} type="button"
+                                className="btn btn-outline-warning d-block mt-3">Đọc mới nhất
+                        </button>
                     </div>
                     <div>
                         <span className="d-block">{comicDetail?.otherName}</span>
@@ -184,7 +404,7 @@ const ComicDetail = () => {
                         <button type="button"
                                 onClick={handleFavoriteClick}
                                 className={`btn ${isFavorite ? "btn-warning" : "btn-outline-warning "} d-block mt-3`}><i
-                            className="bi bi-heart"></i>{isFavorite ? "Bỏ yêu thích" : " Yêu thích"}
+                            className="bi bi-heart"></i>{isFavorite ? " Bỏ yêu thích" : " Yêu thích"}
                         </button>
                     </div>
                 </div>
@@ -283,13 +503,18 @@ const ComicDetail = () => {
                 </div>
             </div>
             <div className="mt-3">
-                <form>
-                    <div className="mb-3 mt-3">
-                        <label htmlFor="comment">Comments:</label>
-                        <textarea className="form-control" rows="3" id="comment" name="text"></textarea>
-                    </div>
-                    <button type="submit" className="btn btn-outline-warning">Submit</button>
-                </form>
+                <div className="mb-3 mt-3">
+                    <label htmlFor="comment">Comments:</label>
+                    <textarea
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        className="form-control" rows="3"
+                        id="comment" name="text"
+                    >
+
+                        </textarea>
+                </div>
+                <button onClick={handleAddComment} className="btn btn-outline-warning">Bình luận</button>
             </div>
             <div>
                 <div className="mt-3">
@@ -297,33 +522,8 @@ const ComicDetail = () => {
                             data-bs-target="#demo"><i class="bi bi-chat-dots-fill"></i> Xem các bình luận
                     </button>
                     <div id="demo" className="collapse">
-                        <div className="row mt-3">
-                            <div className="col-3 col-sm-3 col-md-3 col-lg-1">
-                                <img className="col-10 card" loading="lazy"
-                                     src="https://ih1.redbubble.net/image.4560210080.3383/st,small,507x507-pad,600x600,f8f8f8.jpg"/>
-                            </div>
-                            <div className="col-9 col-sm-9 col-md-9 col-lg-11">
-                                <div>
-                                    <label htmlFor="comment">CuLi Truyen247</label>
-                                    <textarea className="form-control" readOnly rows="3" id="comment" name="text">
-                                Truyện này hay quá trời :))
-                            </textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="row mt-3">
-                            <div className="col-3 col-sm-3 col-md-3 col-lg-1">
-                                <img className="col-10 card" loading="lazy"
-                                     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMxU0ByBjU1rbBo5xxXHnXpMKtNI8afm0faw&s"/>
-                            </div>
-                            <div className="col-9 col-sm-9 col-md-9 col-lg-11">
-                                <div>
-                                    <label htmlFor="comment">CuLi Truyen247</label>
-                                    <textarea className="form-control" readOnly rows="3" id="comment" name="text">
-                                Bao giờ ra chapter mới vậy :(
-                            </textarea>
-                                </div>
-                            </div>
+                        <div className="mt-4">
+                            <div>{renderComments(comments)}</div>
                         </div>
                     </div>
                 </div>

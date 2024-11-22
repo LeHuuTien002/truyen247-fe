@@ -14,8 +14,10 @@ import Genres from "./conpnents/adminPage/Genres";
 import Chapters from "./conpnents/adminPage/Chapters";
 import Pages from "./conpnents/adminPage/Pages";
 import ReadPages from "./conpnents/userPage/ReadPages";
-import Demo from "./conpnents/userPage/ChapterSelector";
 import Favorites from "./conpnents/userPage/Favorites";
+import Demo from "./demo/Demo";
+import UserGenres from "./conpnents/userPage/UserGenres";
+import SearchResults from "./conpnents/userPage/SearchResults";
 
 function App() {
     return (
@@ -26,18 +28,23 @@ function App() {
                     <Route path="register" element={<RegisterForm/>}/>
                     <Route path="login" element={<LoginForm/>}/>
                     <Route path="history" element={<History/>}/>
-                    <Route path=":comicId/comicDetail" element={<ComicDetail/>}/>
+                    <Route path="comics/:comicId" element={<ComicDetail/>}/>
                     <Route path='favorites' element={<Favorites/>}/>
-                    <Route path='demo' element={<Demo/>}/>
                     <Route path="repassword" element={<RePassword/>}/>
+                    <Route path="genres" element={<UserGenres/>}/>
+                    <Route path="search/:searchTerm" element={<SearchResults/>}/>
+                    <Route path="genre/:genreName" element={<UserGenres/>}/>
+                    <Route path="demo" element={<Demo/>}/>
                 </Route>
-                <Route path=":comicId/comicDetail/chapter/:chapterId/pages" element={<ReadPages/>}/>
-                <Route path="/" element={<LayoutAdmin/>}>
+
+                <Route path="/comics/:comicId/chapters/:chapterId/pages" element={<ReadPages/>}/>
+
+                <Route path="/admin/" element={<LayoutAdmin/>}>
                     <Route element={<AdminRoute/>}>
-                        <Route path="admin" element={<Genres/>}/>
-                        <Route path="comic-list" element={<Comics/>}/>
-                        <Route path="comics/:id/chapters" element={<Chapters/>}/>
-                        <Route path="comics/:id/chapters/:id/pages" element={<Pages/>}/>
+                        <Route path="genres" element={<Genres/>}/>
+                        <Route index path="comics" element={<Comics/>}/>
+                        <Route path="comics/:comicId/chapters" element={<Chapters/>}/>
+                        <Route path="comics/:comicId/chapters/:chapterId/pages" element={<Pages/>}/>
                     </Route>
                 </Route>
             </Routes>

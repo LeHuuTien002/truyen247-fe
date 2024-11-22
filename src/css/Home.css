@@ -81,3 +81,10 @@
     color: #fff; /* Chữ màu trắng để nổi bật trên nền tối */
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7); /* Thêm bóng chữ */
 }
+
+/* Hiển thị menu con khi hover */
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0; /* Gỡ margin mặc định */
+}
+

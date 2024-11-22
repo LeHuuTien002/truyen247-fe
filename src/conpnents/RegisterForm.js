@@ -6,7 +6,7 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import {isEmail} from "validator";
-import Alert from "./Alert";
+import Alert from "./utils/Alert";
 import {setMessage} from "../actions/message";
 
 const required = (value) => {
@@ -170,7 +170,7 @@ const RegisterForm = () => {
                 {message && (
                     <Alert
                         message={message}
-                        type="danger"
+                        type="success"
                         onClose={() => setMessage('')}
                     />
                 )}

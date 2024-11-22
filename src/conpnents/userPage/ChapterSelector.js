@@ -5,7 +5,7 @@ import {getChaptersByComicId} from "../../services/chapterService";
 import {getUserId} from "../utils/auth";
 import useHistoryHandler from "../utils/useHistoryHandler";
 
-function ChapterSelector({chapterId}) {
+function ChapterSelector({chapterId, isScrolling, scrollSpeed, setIsScrolling, setScrollSpeed}) {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const dropdownRef = useRef(null);
@@ -97,7 +97,7 @@ function ChapterSelector({chapterId}) {
 
     const navigate = useNavigate();
     const handleNavigatePages = (chapterId) => {
-        navigate(`/${comicId}/comicDetail/chapter/${chapterId}/pages`);
+        navigate(`/comics/${comicId}/chapters/${chapterId}/pages`);
     };
 
     return (
@@ -105,7 +105,7 @@ function ChapterSelector({chapterId}) {
             <div className="d-flex align-items-center p-3 me-5" ref={dropdownRef}>
                 <Link to={'/'} title='Trang chủ' className="navbar-brand fs-2"><i
                     className="bi bi-house hover-text"></i></Link>
-                <Link to={`/${comicId}/comicDetail`} title='Danh sách chương' className="navbar-brand fs-1 ms-2 me-2"><i
+                <Link to={`/comics/${comicId}`} title='Danh sách chương' className="navbar-brand fs-1 ms-2 me-2"><i
                     className="bi bi-list-task hover-text"></i></Link>
                 <button
                     onClick={goToPreviousChapter}
@@ -124,6 +124,24 @@ function ChapterSelector({chapterId}) {
                 >
                     &gt;
                 </button>
+                <div className="control-bar d-flex ms-1">
+                    <button className="btn btn-outline-warning" onClick={() => setIsScrolling(!isScrolling)}>
+                        {isScrolling ? "Dừng cuộn" : "Bắt đầu cuộn"}
+                    </button>
+                    {isScrolling && (
+                        <div className="d-flex align-items-center ms-1">
+                            <label htmlFor="scrollSpeed">Tốc độ: </label>
+                            <input
+                                type="range"
+                                id="scrollSpeed"
+                                min="1"
+                                max="10"
+                                value={scrollSpeed}
+                                onChange={(e) => setScrollSpeed(Number(e.target.value))}
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Modal hiển thị trên hoặc dưới dựa vào vị trí */}

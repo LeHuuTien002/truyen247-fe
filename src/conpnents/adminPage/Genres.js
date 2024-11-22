@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {createGenre, deleteGenre, getAllGenre, updateGenre} from "../../services/genreService";
-import Alert from "../Alert";
+import Alert from "../utils/Alert";
 import SearchBar from "../SearchBar";
 
 const Genres = () => {
@@ -30,7 +30,6 @@ const Genres = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [id, setId] = useState(null);
-    const token = localStorage.getItem("token");
 
 
     const handleEditClick = (genre) => {
@@ -61,7 +60,7 @@ const Genres = () => {
         setErrorMessage('');
         e.preventDefault();
         try {
-            const {success: successMessage} = await createGenre(name, description, token);
+            const {success: successMessage} = await createGenre(name, description);
             loadGenre();
             setSuccessMessage(successMessage);
             setName("");
@@ -76,7 +75,7 @@ const Genres = () => {
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const {success: successMessage} = await updateGenre(id, name, description, token);
+            const {success: successMessage} = await updateGenre(id, name, description);
             loadGenre();
             setSuccessMessage(successMessage);
         } catch (error) {
@@ -89,7 +88,7 @@ const Genres = () => {
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const {success: successMessage} = await deleteGenre(id, token);
+            const {success: successMessage} = await deleteGenre(id);
             loadGenre();
             setSuccessMessage(successMessage);
         } catch (error) {
@@ -99,7 +98,7 @@ const Genres = () => {
 
     const loadGenre = async () => {
         try {
-            const data = await getAllGenre(token);
+            const data = await getAllGenre();
             setGenreList(data);
         } catch (error) {
             setErrorMessage(error.message);
@@ -108,7 +107,7 @@ const Genres = () => {
 
     useEffect(() => {
         loadGenre();
-    }, [token]); // Chạy lại khi token thay đổi
+    }, []);
 
     return (
         <div className="container bg-dark p-5">
@@ -181,7 +180,7 @@ const Genres = () => {
             </div>
             <h2 className="text-warning text-center">DANH SÁCH THỂ LOẠI TRUYỆN</h2>
             <SearchBar onSearch={handleSearch}/>
-            <table className="table table-dark table-hover table-bordered overflow-y: hidden">
+            <table className="table table-dark table-hover text-center table-bordered overflow-y: hidden">
                 <thead className="text-center">
                 <tr>
                     <th>Tên Thể Loại</th>
@@ -200,7 +199,7 @@ const Genres = () => {
                             <td>{genre.updateAt}</td>
 
                             <td>
-                                <div className="d-flex">
+                                <div className="d-flex justify-content-center">
                                     {/*Update*/}
                                     <button type="button" className="btn btn-outline-success me-2"
                                             onClick={() => handleEditClick(genre)}

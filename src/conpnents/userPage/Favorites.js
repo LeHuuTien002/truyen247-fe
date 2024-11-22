@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {getUserId} from "../utils/auth";
 import {getFavorites, removeFavorite} from "../../services/favoriteService";
@@ -7,6 +7,11 @@ import Pagination from "../Pagination";
 const Favorites = () => {
     const [favorites, setFavorites] = useState([]); // Danh sách truyện yêu thích
     const [filteredData, setFilteredData] = useState(favorites);
+    const navigate = useNavigate();
+
+    const handleNavigateComicDetailClick = (id) => {
+        navigate(`/comics/${id}`);
+    };
     useEffect(() => {
         // Lấy danh sách truyện yêu thích từ backend
         const fetchFavorites = async () => {
@@ -68,7 +73,7 @@ const Favorites = () => {
             </span>
             <div className="row">
                 {currentRows?.length > 0 ? (currentRows.map((comic) => (
-                    <div key={comic.comicId}
+                    <div key={comic.comicId} onClick={() => handleNavigateComicDetailClick(comic.comicId)}
                          className="d-flex flex-column col-6 col-sm-6 col-md-4 col-lg-3 mt-3 hover-text">
                         <div className="card comic-card">
                             <div className="image-container">

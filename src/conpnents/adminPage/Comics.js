@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {createComic, deleteComic, getAllComics, updateComic} from "../../services/comicService";
-import Alert from "../Alert";
+import Alert from "../utils/Alert";
 import SearchBar from "../SearchBar";
 import {Link} from "react-router-dom";
 import Select from "react-select";
@@ -97,7 +97,6 @@ const Comics = () => {
 
     const [showFullContent, setShowFullContent] = useState({});
 
-    const token = localStorage.getItem('token');
 
     // Hàm xử lý khi nhấn nút "Xem thêm"
     const toggleContentVisibilly = (index) => {
@@ -167,7 +166,7 @@ const Comics = () => {
         try {
             const {
                 success: successMessage
-            } = await updateComic(id, name, otherName, status, content, author, activate, updatedGenres, file, token);
+            } = await updateComic(id, name, otherName, status, content, author, activate, updatedGenres, file);
             setSuccessMessage(successMessage);
             loadComic();
             handleResetClick();
@@ -184,7 +183,7 @@ const Comics = () => {
         try {
             const {
                 success: successMessage
-            } = await createComic(name, otherName, status, content, author, activate, updatedGenres, file, token);
+            } = await createComic(name, otherName, status, content, author, activate, updatedGenres, file);
             loadComic();
             setSuccessMessage(successMessage);
             handleResetClick();
@@ -198,7 +197,7 @@ const Comics = () => {
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const {success: successMessage} = await deleteComic(id, token);
+            const {success: successMessage} = await deleteComic(id);
             loadComic();
             setSuccessMessage(successMessage);
         } catch (error) {
@@ -208,7 +207,7 @@ const Comics = () => {
 
     const loadGenreByComicId = async (comicId) => {
         try {
-            const data = await getAllGenreByComicId(comicId, token);
+            const data = await getAllGenreByComicId(comicId);
             setSelectedGenres(
                 data.genres.map((genre) => ({
                     value: genre.id,
@@ -222,7 +221,7 @@ const Comics = () => {
 
     const loadComic = async () => {
         try {
-            const data = await getAllComics(token);
+            const data = await getAllComics();
             setComicList(data);
         } catch (error) {
             setErrorMessage(error.message);
@@ -231,7 +230,7 @@ const Comics = () => {
 
     const loadGenre = async () => {
         try {
-            const data = await getAllGenre(token);
+            const data = await getAllGenre();
             setGenreOptions(
                 data.map((genre) => ({
                     value: genre.id,
@@ -246,7 +245,7 @@ const Comics = () => {
     useEffect(() => {
         loadComic();
         loadGenre();
-    }, [token]); // Chạy lại khi token thay đổi
+    }, []);
 
 
     return (
@@ -605,7 +604,7 @@ const Comics = () => {
                                 </div>
                                 <Link
                                     className='fs-6 link-warning link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
-                                    to={`/comics/${comic.id}/chapters`}>Quản lý chương</Link>
+                                    to={`/admin/comics/${comic.id}/chapters`}>Quản lý chương</Link>
                             </td>
                         </tr>
                     ))) : (<tr>

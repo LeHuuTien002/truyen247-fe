@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import '../../css/ChapterBar.css';
 import ChapterSelector from "./ChapterSelector";
 
-const ChapterBar = ({chapterId}) => {
+const ChapterBar = ({chapterId, isScrolling, scrollSpeed, setIsScrolling,setScrollSpeed}) => {
     const [scrollDirection, setScrollDirection] = useState(null);
     const [lastScrollTop, setLastScrollTop] = useState(0);
 
@@ -24,10 +24,10 @@ const ChapterBar = ({chapterId}) => {
     return (
         <>
             <div className={`chapter-bar top ${scrollDirection === 'up' ? 'visible' : ''}`}>
-                <ChapterSelector chapterId={chapterId}/>
+                <ChapterSelector chapterId={chapterId} isScrolling={isScrolling} scrollSpeed={scrollSpeed} setIsScrolling={setIsScrolling} setScrollSpeed={setScrollSpeed}/>
             </div>
             <div className={`chapter-bar bottom ${scrollDirection === 'down' ? 'visible' : ''}`}>
-                <ChapterSelector chapterId={chapterId}/>
+                <ChapterSelector chapterId={chapterId} isScrolling={isScrolling} scrollSpeed={scrollSpeed} setIsScrolling={setIsScrolling} setScrollSpeed={setScrollSpeed}/>
             </div>
         </>
     );

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import {getComicById} from "../../services/comicService";
-import Alert from "../Alert";
+import Alert from "../utils/Alert";
 import {
     createChapter,
     deleteChapter,
@@ -31,8 +31,7 @@ const Chapters = () => {
         setCurrentPage(pageNumber);
     };
 
-    const {id} = useParams();
-    const token = localStorage.getItem("token");
+    const {comicId} = useParams();
     const [comic, setComic] = useState(null);
     const [chapterId, setChapterId] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
@@ -43,7 +42,7 @@ const Chapters = () => {
 
     const loadComic = async () => {
         try {
-            const data = await getComicById(id, token);
+            const data = await getComicById(comicId);
             setComic(data);
         } catch (error) {
             setErrorMessage(error.message);
@@ -81,7 +80,7 @@ const Chapters = () => {
 
     const loadChapter = async () => {
         try {
-            const data = await getChaptersByComicId(id, token);
+            const data = await getChaptersByComicId(comicId);
             console.log(data)
             const sortedData = data.sort((a, b) => b.chapterNumber - a.chapterNumber);
             setChapterList(sortedData);
@@ -97,7 +96,7 @@ const Chapters = () => {
         try {
             const {
                 success: successMessage
-            } = await createChapter(id, title, chapterNumber, token);
+            } = await createChapter(comicId, title, chapterNumber);
             console.log(successMessage)
             setSuccessMessage(successMessage);
             loadChapter();
@@ -114,7 +113,7 @@ const Chapters = () => {
         try {
             const {
                 success: successMessage
-            } = await updateChapterByComicId(id, chapterId, title, chapterNumber, token);
+            } = await updateChapterByComicId(comicId, chapterId, title, chapterNumber);
             setSuccessMessage(successMessage);
             loadChapter();
             handleResetClick();
@@ -128,7 +127,7 @@ const Chapters = () => {
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const {success: successMessage} = await deleteChapter(id, chapterId, token);
+            const {success: successMessage} = await deleteChapter(comicId, chapterId);
             loadChapter();
             setSuccessMessage(successMessage);
         } catch (error) {
@@ -139,11 +138,15 @@ const Chapters = () => {
     useEffect(() => {
         loadComic();
         loadChapter();
-    }, [token, id]); // Chạy lại khi token thay đổi
+    }, [comicId]);
 
 
     return (
         <div className="container bg-dark p-5">
+            <span> <Link to={`/admin/comics`} className="text-decoration-none">Quản lý truyện</Link>
+                <i className="bi bi-chevron-double-right small"></i>
+                <span className="text-warning"> Danh sách chương</span>
+            </span>
             <h2 className="text-warning text-center">QUẢN LÝ CHƯƠNG</h2>
             <div className="container mt-3">
                 <h5 className="text-center">{comic?.name}</h5>
@@ -261,7 +264,7 @@ const Chapters = () => {
                                                                 data-bs-dismiss="modal"
                                                                 aria-label="Close"></button>
                                                     </div>
-                                                    <div className="modal-body">
+                                                    <div className="modal-body text-start">
                                                         <form onSubmit={handleUpdateSubmit} className="container">
                                                             <div className="mb-3">
                                                                 <label htmlFor="title" className="form-label">Tiêu
@@ -349,7 +352,7 @@ const Chapters = () => {
                                     </div>
                                     <Link
                                         className='fs-6 link-warning link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
-                                        to={`/comics/${comic.id}/chapters/${chapter.id}/pages`}>Quản lý trang</Link>
+                                        to={`/admin/comics/${comic.id}/chapters/${chapter.id}/pages`}>Quản lý trang</Link>
                                 </td>
                             </tr>
                         ))) : (<tr>

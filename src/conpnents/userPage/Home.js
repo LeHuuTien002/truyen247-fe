@@ -1,5 +1,5 @@
 import {Link, useNavigate} from "react-router-dom";
-import {getAllComics} from "../../services/comicService";
+import {getAllComicsIsActive} from "../../services/comicService";
 import React, {useEffect, useState} from "react";
 import '../../css/Home.css';
 
@@ -26,13 +26,12 @@ const Home = () => {
 
     const navigate = useNavigate();
     const handleNavigateComicDetailClick = (id) => {
-        navigate(`/${id}/comicDetail`);
+        navigate(`/comics/${id}`);
     };
 
-    const token = localStorage.getItem('token');
     const loadComic = async () => {
         try {
-            const data = await getAllComics(token);
+            const data = await getAllComicsIsActive();
             setComicList(data);
         } catch (error) {
             console.log(error.message)
@@ -40,7 +39,8 @@ const Home = () => {
     };
     useEffect(() => {
         loadComic();
-    }, []); // Chạy lại khi token thay đổi
+    }, []);
+
 
     return (
         <div className="bg-dark container">

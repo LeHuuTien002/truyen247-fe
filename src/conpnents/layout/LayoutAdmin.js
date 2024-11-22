@@ -111,10 +111,10 @@ const LayoutAdmin = () => {
                         <div className="collapse navbar-collapse" id="collapsibleNavbar">
                             <ul className="navbar-nav">
                                 <li className="nav-item">
-                                    <Link className="nav-link" href="#" to='/admin'>QUẢN LÝ THỂ LOẠI</Link>
+                                    <Link className="nav-link" href="#" to='/admin/genres'>QUẢN LÝ THỂ LOẠI</Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link to="/comic-list" className="nav-link" href="#">QUẢN LÝ TRUYỆN</Link>
+                                    <Link to="/admin/comics" className="nav-link" href="#">QUẢN LÝ TRUYỆN</Link>
                                 </li>
                                 <div className="d-block d-sm-none d-md-none d-lg-none">
                                     <div className="nav-item dropdown dropdown-menu-end">

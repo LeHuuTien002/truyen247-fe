@@ -1,8 +1,10 @@
 import axios from "axios";
 
-const getChapterById = async (id, token) => {
+const token = localStorage.getItem("token");
+
+const getChapterById = async (comicId) => {
     try {
-        const response = await axios.get(`http://localhost:8080/api/comic/chapters/${id}`, {
+        const response = await axios.get(`http://localhost:8080/api/comic/chapters/${comicId}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             }
@@ -13,17 +15,8 @@ const getChapterById = async (id, token) => {
     }
 }
 
-const createPage = async (id, pageNumber, imageUrl, token) => {
+const createPage = async (id, formData) => {
     try {
-        const formData = new FormData();
-        // Tạo đối tượng ComicRequest và chuyển thành Blob
-        const pageRequest = {
-            pageNumber: pageNumber
-        };
-        formData.append("pageRequest", new Blob([JSON.stringify(pageRequest)], {type: "application/json"}));
-
-        // Thêm file vào formData
-        formData.append("file", imageUrl);
         const response = await axios.post(`http://localhost:8080/api/admin/comic/chapter/${id}/create`,
             formData,
             {
@@ -45,7 +38,7 @@ const createPage = async (id, pageNumber, imageUrl, token) => {
     }
 }
 
-const updatePage = async (pageId, pageNumber, imageUrl, token) => {
+const updatePage = async (pageId, pageNumber, imageUrl) => {
     try {
         const formData = new FormData();
         // Tạo đối tượng ComicRequest và chuyển thành Blob
@@ -77,7 +70,7 @@ const updatePage = async (pageId, pageNumber, imageUrl, token) => {
     }
 }
 
-const deletePage = async (chapterId, pageId, token) => {
+const deletePage = async (chapterId, pageId) => {
     try {
         const response = await axios.delete(`http://localhost:8080/api/admin/comic/chapter/${chapterId}/pages/${pageId}`, {
             headers: {
@@ -94,7 +87,7 @@ const deletePage = async (chapterId, pageId, token) => {
     }
 }
 
-const getAllPageByChapterId = async (id, token) => {
+const getAllPageByChapterId = async (id) => {
     try {
         const response = await axios.get(`http://localhost:8080/api/comic/chapter/${id}/pages`,
             {

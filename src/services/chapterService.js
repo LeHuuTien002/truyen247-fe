@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const createChapter = async (id, title, chapterNumber, token) => {
+const token = localStorage.getItem("token");
+
+const createChapter = async (id, title, chapterNumber) => {
     try {
         const response = await axios.post(`http://localhost:8080/api/admin/comic/${id}/chapters/create`,
             {title, chapterNumber},
@@ -20,7 +22,7 @@ const createChapter = async (id, title, chapterNumber, token) => {
     }
 }
 
-const updateChapterByComicId = async (comicId, chapterId, title, chapterNumber, token) => {
+const updateChapterByComicId = async (comicId, chapterId, title, chapterNumber) => {
     try {
         const response = await axios.put(`http://localhost:8080/api/admin/comic/${comicId}/chapters/${chapterId}`, {
             title,
@@ -40,7 +42,7 @@ const updateChapterByComicId = async (comicId, chapterId, title, chapterNumber, 
     }
 }
 
-const deleteChapter = async (comicId, chapterId, token) => {
+const deleteChapter = async (comicId, chapterId) => {
     try {
         const response = await axios.delete(`http://localhost:8080/api/admin/comic/${comicId}/chapters/${chapterId}`, {
             headers: {
@@ -57,9 +59,9 @@ const deleteChapter = async (comicId, chapterId, token) => {
     }
 }
 
-const getChaptersByComicId = async (id, token) => {
+const getChaptersByComicId = async (comicId) => {
     try {
-        const response = await axios.get(`http://localhost:8080/api/comic/${id}/chapters/list`, {
+        const response = await axios.get(`http://localhost:8080/api/comic/${comicId}/chapters/list`, {
             headers: {
                 authorization: `Bearer ${token}`,
             }
