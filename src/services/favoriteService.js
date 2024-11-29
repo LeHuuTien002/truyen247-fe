@@ -1,9 +1,8 @@
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8080/api/favorites';
-const token = localStorage.getItem('token');
 
-export const getFavorites = async (userId) => {
+export const getFavorites = async (userId,token) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/${userId}`, {
             headers: {
@@ -16,19 +15,19 @@ export const getFavorites = async (userId) => {
     }
 }
 
-export const addFavorite = async (userId, comicId) => axios.post(`${API_BASE_URL}/${userId}/${comicId}`, {}, {
+export const addFavorite = async (userId, comicId,token) => await axios.post(`${API_BASE_URL}/${userId}/${comicId}`, {}, {
     headers: {
         Authorization: `Bearer ${token}`
     }
 });
 
-export const removeFavorite = async (userId, comicId) => axios.delete(`${API_BASE_URL}/${userId}/${comicId}`, {
+export const removeFavorite = async (userId, comicId,token) => await axios.delete(`${API_BASE_URL}/${userId}/${comicId}`, {
     headers: {
         Authorization: `Bearer ${token}`
     }
 });
 
-export const checkIsFavorite = (userId, comicId) => {
+export const checkIsFavorite = (userId, comicId,token) => {
     return axios.get(`${API_BASE_URL}/${userId}/${comicId}/is-favorite`, {
         headers: {
             Authorization: `Bearer ${token}`

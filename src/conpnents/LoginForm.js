@@ -2,13 +2,15 @@ import {Link, useNavigate} from "react-router-dom";
 import React, {useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 
-import {login} from "../actions/auth";
+import {login, loginWithGoogle} from "../actions/auth";
 
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import Alert from "./utils/Alert";
 import {setMessage} from "../actions/message";
+import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google";
+import axios from "axios";
 
 const required = (value) => {
     if (!value) {
@@ -41,6 +43,7 @@ const LoginForm = () => {
 
 
     const {message} = useSelector(state => state.message);
+    const [successMessage, setSuccessMessage] = useState(message);
     const {isLoggedIn, user: currentUser} = useSelector((state) => state.auth);
 
     const dispatch = useDispatch();
@@ -57,7 +60,7 @@ const LoginForm = () => {
 
     const handleLogin = (e) => {
         e.preventDefault();
-
+        setSuccessMessage(message);
         setLoading(true);
 
         form.current.validateAll();
@@ -81,6 +84,26 @@ const LoginForm = () => {
         }
     };
 
+    const handleSuccess = async (credentialResponse) => {
+        setLoading(true)
+        setSuccessMessage(message)
+        const idToken = credentialResponse.credential;
+        dispatch(loginWithGoogle(idToken)).then((response) => {
+            if (response && response.roles && response.roles.includes('ROLE_ADMIN')) {
+                navigate('/admin');
+            } else {
+                navigate('/')
+            }
+            setLoading(false);
+        }).catch(() => {
+            setLoading(false)
+        });
+    };
+
+    const handleError = () => {
+        console.error("Google Login Failed");
+    };
+
     // Tự động chuyển hướng nếu đã đăng nhập
     useEffect(() => {
         if (isLoggedIn) {
@@ -98,11 +121,11 @@ const LoginForm = () => {
                 <i className="bi bi-chevron-double-right"></i>
                 <span className="text-warning"> Đăng nhập</span>
             </span>
-            {message && (
+            {successMessage && (
                 <Alert
-                    message={message}
+                    message={successMessage}
                     type="danger"
-                    onClose={() => setMessage('')}
+                    onClose={() => setSuccessMessage('')}
                 />
             )}
             <Form onSubmit={handleLogin} ref={form} className="container p-4">
@@ -144,8 +167,15 @@ const LoginForm = () => {
                     )}
                     <span>Đăng nhập</span>
                 </button>
-                <button type="submit" className="btn btn-outline-danger form-control">Đăng nhập bằng tài khoản google
-                </button>
+                <GoogleOAuthProvider
+                    clientId="874486330422-7ujmtvsvp104ufmdsmld2h3vil53av44.apps.googleusercontent.com">
+                    <div>
+                        <GoogleLogin
+                            onSuccess={handleSuccess}
+                            onError={handleError}
+                        />
+                    </div>
+                </GoogleOAuthProvider>
                 <CheckButton style={{display: "none"}} ref={checkBtn}/>
             </Form>
         </div>

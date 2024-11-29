@@ -3,7 +3,7 @@ import {
     REGISTER_FAIL,
     LOGIN_SUCCESS,
     LOGIN_FAIL,
-    LOGOUT,
+    LOGOUT, LOGIN_GOOGLE_SUCCESS, LOGIN_GOOGLE_FAIL,
 } from "../actions/types";
 
 const user = JSON.parse(localStorage.getItem("user"));
@@ -27,12 +27,14 @@ export default function (state = initialState, action) {
                 isLoggedIn: false,
             };
         case LOGIN_SUCCESS:
+        case LOGIN_GOOGLE_SUCCESS:
             return {
                 ...state,
                 isLoggedIn: true,
                 user: payload.user,
             };
         case LOGIN_FAIL:
+        case LOGIN_GOOGLE_FAIL:
             return {
                 ...state,
                 isLoggedIn: false,

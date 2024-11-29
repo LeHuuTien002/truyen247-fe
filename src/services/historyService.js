@@ -2,15 +2,13 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8080/api/history';
 
-const token = localStorage.getItem('token');
-
-export const removeHistory = async (historyId) => axios.delete(`${API_BASE_URL}/${historyId}`, {
+export const removeHistory = async (historyId, token) => axios.delete(`${API_BASE_URL}/${historyId}`, {
     headers: {
         Authorization: `Bearer ${token}`
     }
 });
 
-export const getHistoryByUser = async (userId) => {
+export const getHistoryByUser = async (userId,token) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/user/${userId}`, {
             headers: {
@@ -23,7 +21,28 @@ export const getHistoryByUser = async (userId) => {
     }
 }
 
-export const checkHistoryExists = async (userId, comicId) => {
+export const getRecentLogsByUser = async (userId,token) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/recent-logs-by-user`,
+            {
+                params: {userId},
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || "Lỗi từ phía server.");
+        } else {
+            throw new Error('Đã xảy ra lỗi không xác định.');
+        }
+    }
+};
+
+
+export const checkHistoryExists = async (userId, comicId,token) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/exists`, {
             headers: {
@@ -44,7 +63,7 @@ export const checkHistoryExists = async (userId, comicId) => {
 /**
  * Tạo mới lịch sử đọc.
  */
-export const createHistory = async (historyData) => {
+export const createHistory = async (historyData,token) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/create`, historyData, {
             headers: {
@@ -62,7 +81,7 @@ export const createHistory = async (historyData) => {
 /**
  * Cập nhật lịch sử đọc.
  */
-export const updateHistory = async (historyData) => {
+export const updateHistory = async (historyData,token) => {
     try {
         const response = await axios.put(`${API_BASE_URL}/update`, historyData, {
             headers: {

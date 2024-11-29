@@ -1,8 +1,6 @@
-import axios, {get} from "axios";
+import axios from "axios";
 
-const token = localStorage.getItem("token");
-
-const createComic = async (name, otherName, status, content, author, activate, updatedGenres, file) => {
+const createComic = async (name, otherName, status, content, author, activate, updatedGenres, file, token) => {
     try {
         const formData = new FormData();
         // Tạo đối tượng ComicRequest và chuyển thành Blob
@@ -40,7 +38,7 @@ const createComic = async (name, otherName, status, content, author, activate, u
     }
 }
 
-const updateComic = async (id, name, otherName, status, content, author, activate, updatedGenres, file) => {
+const updateComic = async (id, name, otherName, status, content, author, activate, updatedGenres, file,token) => {
     try {
         const formData = new FormData();
         // Tạo đối tượng ComicRequest và chuyển thành Blob
@@ -78,7 +76,7 @@ const updateComic = async (id, name, otherName, status, content, author, activat
     }
 }
 
-const deleteComic = async (id) => {
+const deleteComic = async (id,token) => {
     try {
         const response = await axios.delete(`http://localhost:8080/api/admin/comics/${id}/delete`, {
             headers: {
@@ -94,11 +92,11 @@ const deleteComic = async (id) => {
         } else {
             throw new Error('Đã xảy ra lỗi không xác định.');
         }
-
     }
 }
 
-const getAllComics = async () => {
+// Admin
+const getAllComics = async (token) => {
     try {
         const response = await axios.get("http://localhost:8080/api/admin/comics/list",
             {
@@ -112,14 +110,10 @@ const getAllComics = async () => {
     }
 }
 
+// Public
 const getAllComicsIsActive = async () => {
     try {
-        const response = await axios.get("http://localhost:8080/api/comics/list",
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
+        const response = await axios.get("http://localhost:8080/api/public/comics/list")
         return response.data;
     } catch (error) {
         throw new Error("Có lỗi xảy ra khi tải dữ liệu!");
@@ -128,11 +122,7 @@ const getAllComicsIsActive = async () => {
 
 const getComicById = async (comicId) => {
     try {
-        const response = await axios.get(`http://localhost:8080/api/comics/${comicId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        })
+        const response = await axios.get(`http://localhost:8080/api/public/comics/${comicId}`)
         return response.data;
     } catch (error) {
         throw new Error("Có lỗi xảy ra khi tải dữ liệu!");
@@ -140,16 +130,12 @@ const getComicById = async (comicId) => {
 }
 
 const getComicsByGenre = async (genreName) => {
-    let url = "http://localhost:8080/api/comics/list";
+    let url = "http://localhost:8080/api/public/comics/list";
     if (genreName !== "Tất cả") {
-        url = `http://localhost:8080/api/comics/genre${genreName}`;
+        url = `http://localhost:8080/api/public/comics/genre${genreName}`;
     }
     try {
-        const response = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await axios.get(url);
         return response.data;
     } catch (error) {
         throw new Error("Có lỗi xảy ra khi tải dữ liệu!");
@@ -158,11 +144,7 @@ const getComicsByGenre = async (genreName) => {
 
 const searchComics = async (comicName) => {
     try {
-        const response = await axios.get(`http://localhost:8080/api/comics/search?name=${comicName}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await axios.get(`http://localhost:8080/api/public/comics/search?name=${comicName}`);
         return response.data;
     } catch (error) {
         throw new Error("Có lỗi xảy ra khi tải dữ liệu!");

@@ -4,6 +4,7 @@ import Alert from "../utils/Alert";
 import SearchBar from "../SearchBar";
 
 const Genres = () => {
+    const token = localStorage.getItem("token");
     const [genreList, setGenreList] = useState([]);
     const [filteredData, setFilteredData] = useState(genreList);
     const [currentPage, setCurrentPage] = useState(1);
@@ -60,7 +61,7 @@ const Genres = () => {
         setErrorMessage('');
         e.preventDefault();
         try {
-            const {success: successMessage} = await createGenre(name, description);
+            const {success: successMessage} = await createGenre(name, description, token);
             loadGenre();
             setSuccessMessage(successMessage);
             setName("");
@@ -75,7 +76,7 @@ const Genres = () => {
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const {success: successMessage} = await updateGenre(id, name, description);
+            const {success: successMessage} = await updateGenre(id, name, description, token);
             loadGenre();
             setSuccessMessage(successMessage);
         } catch (error) {
@@ -88,7 +89,7 @@ const Genres = () => {
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const {success: successMessage} = await deleteGenre(id);
+            const {success: successMessage} = await deleteGenre(id, token);
             loadGenre();
             setSuccessMessage(successMessage);
         } catch (error) {
@@ -195,8 +196,8 @@ const Genres = () => {
                         <tr key={index}>
                             <td>{genre.name}</td>
                             <td>{genre.description}</td>
-                            <td>{genre.createAt}</td>
-                            <td>{genre.updateAt}</td>
+                            <td>{new Date(genre.createAt).toLocaleString()}</td>
+                            <td>{new Date(genre.updateAt).toLocaleString()}</td>
 
                             <td>
                                 <div className="d-flex justify-content-center">

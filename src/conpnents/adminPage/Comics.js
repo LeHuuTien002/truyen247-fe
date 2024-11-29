@@ -47,6 +47,8 @@ const customStyles = {
     }),
 };
 const Comics = () => {
+    const token = localStorage.getItem("token");
+
     const [comicList, setComicList] = useState([]);
     const [filteredData, setFilteredData] = useState(comicList);
     const [currentPage, setCurrentPage] = useState(1);
@@ -207,7 +209,7 @@ const Comics = () => {
 
     const loadGenreByComicId = async (comicId) => {
         try {
-            const data = await getAllGenreByComicId(comicId);
+            const data = await getAllGenreByComicId(comicId, token);
             setSelectedGenres(
                 data.genres.map((genre) => ({
                     value: genre.id,
@@ -221,7 +223,7 @@ const Comics = () => {
 
     const loadComic = async () => {
         try {
-            const data = await getAllComics();
+            const data = await getAllComics(token);
             setComicList(data);
         } catch (error) {
             setErrorMessage(error.message);
@@ -244,12 +246,13 @@ const Comics = () => {
 
     useEffect(() => {
         loadComic();
+    }, [token]);
+
+    useEffect(() => {
         loadGenre();
     }, []);
-
-
     return (
-        <div className="container bg-dark p-5 ">
+        <div className="container bg-dark p-5">
             <button onClick={handleResetClick} type="button" className="btn btn-outline-warning" data-bs-toggle="modal"
                     data-bs-target="#staticBackdrop">
                 Tạo truyện
@@ -404,8 +407,8 @@ const Comics = () => {
                             <td>{comic.activate === true ? "ĐÃ CÔNG KHAI" : "CHƯA CÔNG KHAI"}</td>
                             <td><img src={comic.thumbnail} alt={comic.name} style={{width: "100px"}} loading="lazy"/>
                             </td>
-                            <td>{comic.createAt}</td>
-                            <td>{comic.updateAt === null ? "Chưa cập nhật" : comic.updateAt}</td>
+                            <td>{new Date(comic.createAt).toLocaleString()}</td>
+                            <td>{comic.updateAt === null ? "Chưa cập nhật" : new Date(comic.updateAt).toLocaleString()}</td>
                             <td>
                                 <div className="d-flex">
                                     {/*Update*/}
@@ -501,7 +504,8 @@ const Comics = () => {
                                                                      style={{width: "100px"}}
                                                                      loading="lazy"
                                                                      alt="Ảnh bìa xem trước"/>) : (
-                                                                <img key={inputKey} src={file} loading="lazy" style={{width: "100px"}}
+                                                                <img key={inputKey} src={file} loading="lazy"
+                                                                     style={{width: "100px"}}
                                                                      alt={name}/>
                                                             )}
                                                         </div>

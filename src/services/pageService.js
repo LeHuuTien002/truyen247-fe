@@ -1,8 +1,6 @@
 import axios from "axios";
 
-const token = localStorage.getItem("token");
-
-const getChapterById = async (comicId) => {
+const getPagesByChapterId = async (comicId,token) => {
     try {
         const response = await axios.get(`http://localhost:8080/api/comic/chapters/${comicId}`, {
             headers: {
@@ -15,7 +13,7 @@ const getChapterById = async (comicId) => {
     }
 }
 
-const createPage = async (id, formData) => {
+const createPage = async (id, formData,token) => {
     try {
         const response = await axios.post(`http://localhost:8080/api/admin/comic/chapter/${id}/create`,
             formData,
@@ -38,7 +36,7 @@ const createPage = async (id, formData) => {
     }
 }
 
-const updatePage = async (pageId, pageNumber, imageUrl) => {
+const updatePage = async (pageId, pageNumber, imageUrl,token) => {
     try {
         const formData = new FormData();
         // Tạo đối tượng ComicRequest và chuyển thành Blob
@@ -70,7 +68,7 @@ const updatePage = async (pageId, pageNumber, imageUrl) => {
     }
 }
 
-const deletePage = async (chapterId, pageId) => {
+const deletePage = async (chapterId, pageId,token) => {
     try {
         const response = await axios.delete(`http://localhost:8080/api/admin/comic/chapter/${chapterId}/pages/${pageId}`, {
             headers: {
@@ -89,17 +87,12 @@ const deletePage = async (chapterId, pageId) => {
 
 const getAllPageByChapterId = async (id) => {
     try {
-        const response = await axios.get(`http://localhost:8080/api/comic/chapter/${id}/pages`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
+        const response = await axios.get(`http://localhost:8080/api/public/comic/chapter/${id}/pages`)
         return response.data;
     } catch (error) {
         throw new Error("Có lỗi xảy ra khi tải dữ liệu!");
     }
 }
 
-export {getChapterById, createPage, getAllPageByChapterId, updatePage, deletePage};
+export {getPagesByChapterId, createPage, getAllPageByChapterId, updatePage, deletePage};
 

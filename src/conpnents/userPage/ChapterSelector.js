@@ -19,14 +19,15 @@ function ChapterSelector({chapterId, isScrolling, scrollSpeed, setIsScrolling, s
     useHistoryHandler({
         userId: Number(getUserId()),
         comicId: Number(comicId),
-        chapterId: Number(chapterId)
+        chapterId: Number(chapterId),
+        token: token
     });
 
     const [selectedIndex, setSelectedIndex] = useState(null);
 
     const loadChapter = async () => {
         try {
-            const data = await getChaptersByComicId(comicId, token);
+            const data = await getChaptersByComicId(getUserId(), comicId, token);
             const sortedData = data.sort((a, b) => b.chapterNumber - a.chapterNumber);
             const foundChapter = data.find(chapter => chapter.id === Number(chapterId));
             setSelectedIndex(foundChapter?.chapterNumber);

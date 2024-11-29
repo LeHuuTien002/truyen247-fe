@@ -59,11 +59,11 @@ const LayoutAdmin = () => {
                             </Link>
                         )}
                         <div className="d-flex justify-content-end collapse navbar-collapse">
-                            <div className="d-none d-sm-block d-md-block d-lg-block">
+                            <div className="d-none d-sm-block d-md-block d-lg-block nav-item dropdown">
                                     <span className="dropdown dropdown-menu-end text-end">
                                     <a className="text-decoration-none dropdown-toggle text-white" href="#"
                                        role="button"
-                                       data-bs-toggle="dropdown"><i className="bi bi-person-fill"></i> Tài khoản</a>
+                                    ><i className="bi bi-person-fill"></i> Tài khoản</a>
                                     <ul className="dropdown-menu" style={{zIndex: 9999}}>
                                         {currentUser ? (
                                             <>
@@ -115,6 +115,12 @@ const LayoutAdmin = () => {
                                 </li>
                                 <li className="nav-item">
                                     <Link to="/admin/comics" className="nav-link" href="#">QUẢN LÝ TRUYỆN</Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link to="/admin/users" className="nav-link" href="#">QUẢN LÝ TÀI KHOẢN</Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link to="/admin/payments" className="nav-link" href="#">QUẢN LÝ THANH TOÁN</Link>
                                 </li>
                                 <div className="d-block d-sm-none d-md-none d-lg-none">
                                     <div className="nav-item dropdown dropdown-menu-end">

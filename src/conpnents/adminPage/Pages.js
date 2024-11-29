@@ -1,10 +1,17 @@
 import {Link, useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import {createPage, deletePage, getAllPageByChapterId, getChapterById, updatePage} from "../../services/pageService";
+import {
+    createPage,
+    deletePage,
+    getAllPageByChapterId,
+    getPagesByChapterId,
+    updatePage
+} from "../../services/pageService";
 import Alert from "../utils/Alert";
 import SearchBar from "../SearchBar";
 
 const Pages = () => {
+    const token = localStorage.getItem("token");
     const [pageList, setPageList] = useState([]);
     const [filteredData, setFilteredData] = useState(pageList);
     const [currentPage, setCurrentPage] = useState(1);
@@ -57,7 +64,7 @@ const Pages = () => {
 
     const loadChapter = async () => {
         try {
-            const data = await getChapterById(chapterId);
+            const data = await getPagesByChapterId(chapterId, token);
             setChapter(data);
         } catch (error) {
             setErrorMessage(error.message);
@@ -66,7 +73,7 @@ const Pages = () => {
 
     const loadPage = async () => {
         try {
-            const data = await getAllPageByChapterId(chapterId);
+            const data = await getAllPageByChapterId(chapterId, token);
             const sortedData = data.sort((a, b) => b.pageNumber - a.pageNumber);
             setPageList(sortedData);
         } catch (error) {
@@ -97,7 +104,7 @@ const Pages = () => {
         try {
             const {
                 success: successMessage
-            } = await createPage(chapterId, formData);
+            } = await createPage(chapterId, formData, token);
             loadPage();
             setSuccessMessage(successMessage);
             handleResetClick();
@@ -106,28 +113,13 @@ const Pages = () => {
         }
     }
 
-    const handleUpdateSubmit = async (e) => {
-        e.preventDefault();
-        setSuccessMessage('');
-        setErrorMessage('');
-        try {
-            const {
-                success: successMessage
-            } = await updatePage(pageId);
-            setSuccessMessage(successMessage);
-            loadPage();
-            handleResetClick();
-        } catch (error) {
-            setErrorMessage(error.message);
-        }
-    };
 
     const handleDelete = async (e) => {
         e.preventDefault();
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const {success: successMessage} = await deletePage(chapterId, pageId);
+            const {success: successMessage} = await deletePage(chapterId, pageId, token);
             loadPage();
             setSuccessMessage(successMessage);
         } catch (error) {
@@ -136,6 +128,7 @@ const Pages = () => {
     };
 
     const handleResetClick = () => {
+        setPreviewUrls([])
         setInputKey(Date.now()); // Đặt lại key để làm mới trường file
     }
 
@@ -145,7 +138,8 @@ const Pages = () => {
     }, [chapterId]);
     return (
         <div className="container bg-dark p-5">
-            <span> <Link to={`/admin/comics/${comicId}/chapters`} className="text-decoration-none">Quản lý chương </Link>
+            <span> <Link to={`/admin/comics/${comicId}/chapters`}
+                         className="text-decoration-none">Quản lý chương </Link>
                 <i className="bi bi-chevron-double-right small"></i>
                 <span className="text-warning"> Danh sách trang</span>
             </span>
@@ -208,7 +202,6 @@ const Pages = () => {
                                                multiple
                                                onChange={handleFileChange} required
                                                className="form-control"
-                                            // src={imageUrl}
                                                key={inputKey}
                                                id="coverPhoto"/>
                                     </div>
@@ -244,8 +237,8 @@ const Pages = () => {
                                 <td><img src={page.imageUrl} alt={page.pageNumber} style={{width: "100px"}}
                                          loading="lazy"/>
                                 </td>
-                                <td>{page.createAt}</td>
-                                <td>{page.updateAt === null ? "Chưa cập nhật" : page.updateAt}</td>
+                                <td>{new Date(page.createAt).toLocaleString()}</td>
+                                <td>{page.updateAt === null ? "Chưa cập nhật" : new Date(page.updateAt).toLocaleString()}</td>
                                 <td>
                                     <div className="d-flex justify-content-center">
                                         {successMessage && (
@@ -299,7 +292,7 @@ const Pages = () => {
                                                                 aria-label="Close"></button>
                                                     </div>
                                                     <div className="modal-body">
-                                                        Bạn có muốn xóa truyện này không?
+                                                        Bạn có muốn xóa trang này không?
                                                     </div>
                                                     <div className="modal-footer">
                                                         <button type="button" className="btn btn-outline-warning"

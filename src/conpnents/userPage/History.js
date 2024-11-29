@@ -5,6 +5,7 @@ import {getUserId} from "../utils/auth";
 import {getHistoryByUser, removeHistory} from "../../services/historyService";
 
 const History = () => {
+    const token = localStorage.getItem("token");
     const navigate = useNavigate();
     const [historyList, setHistoryList] = useState([]); // Danh sách truyện yêu thích
     const [filteredData, setFilteredData] = useState(historyList);
@@ -16,14 +17,15 @@ const History = () => {
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
     const currentRows = filteredData?.slice(indexOfFirstRow, indexOfLastRow);
 
+    const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
     useEffect(() => {
         // Lấy danh sách truyện yêu thích từ backend
         const fetchHistory = async () => {
             try {
-                const data = await getHistoryByUser(getUserId());
+                const data = await getHistoryByUser(getUserId(), token);
                 setHistoryList(data); // Cập nhật danh sách yêu thích
             } catch (error) {
-                console.error("Error fetching favorite comics:", error);
+                console.error("Error fetching history comics:", error);
             } finally {
                 setLoading(false); // Tắt trạng thái tải
             }
@@ -40,12 +42,10 @@ const History = () => {
         setCurrentPage(pageNumber);
     };
 
-    const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
 
-    // Xử lý khi bấm "Bỏ yêu thích"
     const handleRemoveFavorite = async (id) => {
         try {
-            await removeHistory(id); // Gửi yêu cầu xóa
+            await removeHistory(id, token); // Gửi yêu cầu xóa
             setHistoryList(historyList.filter((history) => history.id !== id)); // Cập nhật danh sách
         } catch (error) {
             console.error("Error removing favorite comic:", error);
@@ -57,14 +57,16 @@ const History = () => {
     }
 
     if (historyList?.length === 0) {
-        return <p>Không có truyện yêu thích nào!</p>; // Hiển thị khi không có truyện yêu thích
+        return <div className="container bg-dark p-5">Không có lịch sử đọc nào!</div>
     }
 
 
     const handleNavigatePages = (comicId, chapterId) => {
         navigate(`/comics/${comicId}/chapters/${chapterId}/pages`);
     };
-
+    const handleNavigateComicDetailClick = (id) => {
+        navigate(`/comics/${id}`);
+    };
     return (
         <div className="container bg-dark p-5">
             <span> <Link to="/" className="text-decoration-none">Trang chủ </Link>
@@ -75,7 +77,8 @@ const History = () => {
                 {currentRows?.length > 0 ? (currentRows.map((history) => (
                     <div key={history.id}
                          className="d-flex flex-column col-6 col-sm-6 col-md-4 col-lg-3 mt-3 hover-text">
-                        <div className="card comic-card">
+                        <div className="card comic-card"
+                             onClick={() => handleNavigateComicDetailClick(history.comicId)}>
                             <div className="image-container">
                                 <img className="card-img-top object-fit-cover comic-image"
                                      loading="lazy"

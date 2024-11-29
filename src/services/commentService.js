@@ -1,9 +1,8 @@
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8080/api/comments";
-const token = localStorage.getItem("token");
 
-export const addComment = async (comment) => {
+export const addComment = async (comment, token) => {
     try {
         const response = await axios.post(API_BASE_URL,
             comment,
@@ -22,7 +21,7 @@ export const addComment = async (comment) => {
     }
 };
 
-export const replyToComment = async (payload) => {
+export const replyToComment = async (payload,token) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/reply`, payload, {
             headers: {
@@ -39,7 +38,7 @@ export const replyToComment = async (payload) => {
     }
 };
 
-export const deleteComment = async (id, userId) => {
+export const deleteComment = async (id, userId,token) => {
     if (!token) {
         throw new Error("Token không tồn tại. Vui lòng đăng nhập lại.");
     }
@@ -65,12 +64,7 @@ export const deleteComment = async (id, userId) => {
 
 export const fetchComments = async (comicId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/${comicId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
+        const response = await axios.get(`http://localhost:8080/api/public/comments/${comicId}`)
         return response.data;
     } catch (error) {
         throw new Error("Có lỗi xảy ra khi tải dữ liệu!");

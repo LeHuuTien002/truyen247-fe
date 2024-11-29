@@ -6,6 +6,7 @@ import "../../css/CustomPage.css";
 import ChapterBar from "./ChapterBar";
 
 const ReadPages = () => {
+    const token = localStorage.getItem("token");
     const [pageList, setPageList] = useState([]);
     const {chapterId} = useParams();
     const [isScrolling, setIsScrolling] = useState(false);

@@ -1,13 +1,14 @@
 import {Link, useNavigate} from "react-router-dom";
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {register} from "../actions/auth";
+import {loginWithGoogle, register} from "../actions/auth";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import {isEmail} from "validator";
 import Alert from "./utils/Alert";
 import {setMessage} from "../actions/message";
+import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google";
 
 const required = (value) => {
     if (!value) {
@@ -46,17 +47,22 @@ const validPassword = (value) => {
     }
 }
 const RegisterForm = () => {
+    const {isLoggedIn, user: currentUser} = useSelector((state) => state.auth);
+    const [loading, setLoading] = useState(false);
+
     const form = useRef();
     const checkBtn = useRef();
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [error, setError] = useState("");
     const [successful, setSuccessful] = useState(false);
     const {message} = useSelector(state => state.message);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
     const onChangeUsername = (e) => {
         const username = e.target.value;
         setUsername(username);
@@ -79,7 +85,7 @@ const RegisterForm = () => {
         setSuccessful(false);
 
         if (password !== confirmPassword) {
-            setError("Mật khẩu không trùng khớp!");
+            setErrorMessage("Mật khẩu không trùng khớp!");
             return;
         }
 
@@ -89,16 +95,47 @@ const RegisterForm = () => {
             dispatch(register(username, email, password))
                 .then(() => {
                     setSuccessful(true);
-                    setMessage("Đã đăng ký thành công!");
+                    setSuccessMessage(message)
                     navigate("/login")
                     alert("Đăng ký thành công!");
                     window.location.reload();
                 })
                 .catch(() => {
+                    setErrorMessage(message)
                     setSuccessful(false);
                 });
         }
     }
+    const handleSuccess = async (credentialResponse) => {
+        setLoading(true)
+        const idToken = credentialResponse.credential;
+        dispatch(loginWithGoogle(idToken)).then((response) => {
+            if (response && response.roles && response.roles.includes('ROLE_ADMIN')) {
+                navigate('/admin');
+            } else {
+                navigate('/')
+            }
+            setLoading(false);
+        }).catch(() => {
+            setLoading(false)
+        });
+    };
+
+    const handleError = () => {
+        console.error("Google Login Failed");
+    };
+
+    // Tự động chuyển hướng nếu đã đăng nhập
+    useEffect(() => {
+        if (isLoggedIn) {
+            if (currentUser && currentUser.roles.includes('ROLE_ADMIN')) {
+                navigate('/admin'); // Chuyển đến /admin nếu là ADMIN
+            } else {
+                navigate('/'); // Chuyển đến trang chủ nếu không phải ADMIN
+            }
+        }
+    }, [isLoggedIn, currentUser, navigate]);
+
     return (
         <div className="container bg-dark p-5">
             <span> <Link to="/" className="text-decoration-none">Trang chủ </Link>
@@ -162,23 +199,30 @@ const RegisterForm = () => {
                             </label>
                         </div>
                         <button type="submit" className="btn btn-outline-warning form-control mb-3">Đăng ký</button>
-                        <button type="submit" className="btn btn-outline-danger form-control mb-3">Đăng ký bằng tài
-                            khoản google
-                        </button>
+                        <GoogleOAuthProvider
+                            clientId="874486330422-7ujmtvsvp104ufmdsmld2h3vil53av44.apps.googleusercontent.com">
+                            <div>
+                                <GoogleLogin
+                                    onSuccess={handleSuccess}
+                                    onError={handleError}
+                                />
+                            </div>
+                        </GoogleOAuthProvider>
+                        <CheckButton style={{display: "none"}} ref={checkBtn}/>
                     </>
                 )}
-                {message && (
+                {successMessage && (
                     <Alert
-                        message={message}
+                        message={successMessage}
                         type="success"
-                        onClose={() => setMessage('')}
+                        onClose={() => setSuccessMessage('')}
                     />
                 )}
-                {error && (
+                {errorMessage && (
                     <Alert
-                        message={error}
+                        message={errorMessage}
                         type="danger"
-                        onClose={() => setError('')}
+                        onClose={() => setErrorMessage('')}
                     />
                 )}
 

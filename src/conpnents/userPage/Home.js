@@ -2,8 +2,11 @@ import {Link, useNavigate} from "react-router-dom";
 import {getAllComicsIsActive} from "../../services/comicService";
 import React, {useEffect, useState} from "react";
 import '../../css/Home.css';
+import {getHistoryByUser, getRecentLogsByUser, removeHistory} from "../../services/historyService";
+import {getUserId} from "../utils/auth";
 
 const Home = () => {
+    const token = localStorage.getItem("token");
     const [comicList, setComicList] = useState([]);
     const [filteredData, setFilteredData] = useState(comicList);
     const [currentPage, setCurrentPage] = useState(1);
@@ -41,6 +44,35 @@ const Home = () => {
         loadComic();
     }, []);
 
+
+    const [historyList, setHistoryList] = useState([]);
+    const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
+    const fetchRecentLogsByUser = async () => {
+        try {
+            const data = await getRecentLogsByUser(getUserId(), token);
+            setHistoryList(data); // Cập nhật danh sách yêu thích
+        } catch (error) {
+            console.error("Error fetching history comics:", error);
+        } finally {
+            setLoading(false); // Tắt trạng thái tải
+        }
+    };
+    useEffect(() => {
+        fetchRecentLogsByUser();
+    }, [token]);
+
+    const handleRemoveFavorite = async (id) => {
+        try {
+            await removeHistory(id, token); // Gửi yêu cầu xóa
+            setHistoryList(historyList.filter((history) => history.id !== id)); // Cập nhật danh sách
+        } catch (error) {
+            console.error("Error removing favorite comic:", error);
+        }
+    };
+
+    const handleNavigatePages = (comicId, chapterId) => {
+        navigate(`/comics/${comicId}/chapters/${chapterId}/pages`);
+    };
 
     return (
         <div className="bg-dark container">
@@ -154,7 +186,7 @@ const Home = () => {
                                 </ul>
                             </nav>
                         </div>
-                        <div className="col-0 col-sm-0 col-md-0 col-lg-4 mt-3">
+                        <div className="col-0 col-sm-0 col-md-0 col-lg-4 mt-3 container">
                             <div className="row">
                                 <div className="col col-sm col-md col-lg">
                                     <h6 className="text-warning">Lịch sử đọc tại Truyen247</h6>
@@ -164,40 +196,31 @@ const Home = () => {
                                         cả</Link>
                                 </div>
                             </div>
-
-                            <div className="row mt-2">
-                                <div className="col-3 col-sm-3 col-md-3 col-lg-4">
-                                    <img className="col-12 card"
-                                         loading="lazy"
-                                         src="https://pops-images-vn.akamaized.net/api/v2/containers/file2/cms_thumbnails/thumb_640x960_1-d123b3c838d6-1702442749558-0b3FJ3jT.jpg?v=0&maxW=420&format=webp"/>
+                            {historyList?.length > 0 ? (historyList.map((history) => (
+                                <div key={history.id}
+                                     className="row mt-4 hover-text">
+                                    <div className="col-3 col-sm-3 col-md-3 col-lg-4 comic-card"
+                                         onClick={() => handleNavigateComicDetailClick(history.comicId)}>
+                                        <img className="col-12 card comic-image"
+                                             loading="lazy"
+                                             src={history.comicThumbnail}
+                                             alt={history.comicName}/>
+                                    </div>
+                                    <div className="col-9 col-sm-9 col-md-9 col-lg-8">
+                                        <h6>{history.comicName}</h6>
+                                        <span
+                                            onClick={() => handleNavigatePages(history.comicId, history.chapterId)}><strong>Đọc tiếp chapter {history.chapterNumber} ></strong></span>
+                                        <button
+                                            onClick={() => handleRemoveFavorite(history.id)}
+                                            className="btn btn-outline-danger d-block mt-1 fs-6"
+                                        >
+                                            Xóa
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="col-9 col-sm-9 col-md-9 col-lg-8">
-                                    <h6>Doraemon</h6>
-                                    <span>Đọc tiếp chapter 1 ></span>
-                                </div>
-                            </div>
-                            <div className="row mt-3">
-                                <div className="col-3 col-sm-3 col-md-3 col-lg-4">
-                                    <img className="col-12 card"
-                                         loading="lazy"
-                                         src="https://pops-images-vn.akamaized.net/api/v2/containers/file2/cms_thumbnails/640x960-c270acfe693e-1710298245456-JmEm93uZ.jpg?v=0&maxW=420&format=webp"/>
-                                </div>
-                                <div className="col-9 col-sm-9 col-md-9 col-lg-8">
-                                    <h6>Bệ Hạ Kiếp ...</h6>
-                                    <span>Đọc tiếp chapter 1 ></span>
-                                </div>
-                            </div>
-                            <div className="row mt-3">
-                                <div className="col-3 col-sm-3 col-md-3 col-lg-4">
-                                    <img className="col-12 card"
-                                         loading="lazy"
-                                         src="https://pops-images-vn.akamaized.net/api/v2/containers/file2/cms_thumbnails/kvp1-f48b6e39f706-1685529517775-cR8F9qIh.png?v=0&maxW=420&format=webp"/>
-                                </div>
-                                <div className="col-9 col-sm-9 col-md-9 col-lg-8">
-                                    <h6>Anh Trai Tôi Là ...</h6>
-                                    <span>Đọc tiếp chapter 1 ></span>
-                                </div>
-                            </div>
+                            ))) : (<p>
+                                <span className="text-center">Không tìm thấy kết quả</span>
+                            </p>)}
                         </div>
                     </div>
                 </div>

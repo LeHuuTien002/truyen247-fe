@@ -56,7 +56,7 @@ const ComicDetail = () => {
             content: replyContent,
         };
         try {
-            const data = await replyToComment(payload);
+            const data = await replyToComment(payload, token);
             await loadComments();
             // Reset nội dung phản hồi và trạng thái form
             setReplyContent("");
@@ -73,7 +73,7 @@ const ComicDetail = () => {
         }
         const comment = {comicId, userId, content};
         try {
-            const data = await addComment(comment);
+            const data = await addComment(comment, token);
             setContent("");
             await loadComments();
         } catch (error) {
@@ -83,7 +83,7 @@ const ComicDetail = () => {
 
     const handleDeleteComment = async (id) => {
         try {
-            const data = await deleteComment(id, userId);
+            const data = await deleteComment(id, userId, token);
             setContent("");
             await loadComments();
         } catch (error) {
@@ -93,8 +93,7 @@ const ComicDetail = () => {
 
     const loadComments = async () => {
         try {
-            const data = await fetchComments(comicId);
-            console.log(data)
+            const data = await fetchComments(comicId, token);
             setComments(data);
         } catch (error) {
             console.log(error.message);
@@ -116,7 +115,7 @@ const ComicDetail = () => {
         // Kiểm tra xem truyện này có được yêu thích hay không
         const fetchIsFavorite = async () => {
             try {
-                const response = await checkIsFavorite(getUserId(), comicId);
+                const response = await checkIsFavorite(getUserId(), comicId, token);
                 setIsFavorite(response.data); // true hoặc false
             } catch (error) {
                 console.error("Error checking favorite status:", error);
@@ -131,10 +130,10 @@ const ComicDetail = () => {
         try {
             if (isFavorite) {
                 // Gửi yêu cầu xóa yêu thích
-                await removeFavorite(getUserId(), comicId);
+                await removeFavorite(getUserId(), comicId, token);
             } else {
                 // Gửi yêu cầu thêm yêu thích
-                await addFavorite(getUserId(), comicId);
+                await addFavorite(getUserId(), comicId, token);
             }
 
             // Đảo trạng thái yêu thích
@@ -164,7 +163,7 @@ const ComicDetail = () => {
 
     const loadComic = async () => {
         try {
-            const data = await getComicById(comicId, token);
+            const data = await getComicById(comicId);
             setComicDetail(data);
         } catch (error) {
             console.log(error.message);
@@ -173,7 +172,7 @@ const ComicDetail = () => {
 
     const loadChapter = async () => {
         try {
-            const data = await getChaptersByComicId(comicId, token);
+            const data = await getChaptersByComicId(getUserId(), comicId, token);
             const sortedData = data.sort((a, b) => b.chapterNumber - a.chapterNumber);
             setChapterList(sortedData);
         } catch (error) {
@@ -267,7 +266,7 @@ const ComicDetail = () => {
                         {/* Avatar */}
                         <div className="col-auto">
                             <img
-                                src={`https://i.pravatar.cc/40?img=${comment.user.id}`}
+                                src={comment.user.picture}
                                 alt="Avatar"
                                 className="rounded-circle img-fluid"
                                 style={{width: "40px", height: "40px"}}
@@ -375,7 +374,7 @@ const ComicDetail = () => {
             </span>
             <h5 className="text-center mt-3">{comicDetail?.name}</h5>
             <div className="text-center mt-3">
-                <span>[Cập nhật lúc: {comicDetail?.updateAt}]</span>
+                <span>[Cập nhật lúc: {new Date(comicDetail?.updateAt).toLocaleString()}]</span>
             </div>
             <div className="row mt-3">
                 <div className="col-12 col-sm-12 col-md-12 col-lg-2 mt-3">

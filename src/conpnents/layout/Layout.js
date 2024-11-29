@@ -10,6 +10,7 @@ import chunkArray from "../utils/chunkArray";
 import {getAllComicsIsActive} from "../../services/comicService";
 
 const Layout = () => {
+    const token = localStorage.getItem("token");
     // State để điều khiển hiển thị bảng Admin trong navbar
     const [showAdminBoard, setShowAdminBoard] = useState(false);
 
@@ -60,7 +61,7 @@ const Layout = () => {
             console.log(error.message)
         }
     };
-    const genreGroups = chunkArray(genreList, 5);
+    const genreGroups = chunkArray(genreList, 3);
     useEffect(() => {
         loadGenreNameList();
     }, []);
@@ -84,7 +85,6 @@ const Layout = () => {
     const loadComic = async () => {
         try {
             const data = await getAllComicsIsActive();
-            console.log(data)
             setComicList(data);
         } catch (error) {
             console.log(error.message)
@@ -148,11 +148,16 @@ const Layout = () => {
                                     )}
                                 </div>
                             </div>
-                            <div className="d-none d-sm-block d-md-block d-lg-block">
-                                <span className="dropdown dropdown-menu-end text-end">
-                                    <a className="text-decoration-none dropdown-toggle text-white" href="#"
-                                       role="button"
-                                       data-bs-toggle="dropdown"><i className="bi bi-person-fill"></i> Tài khoản</a>
+                            <div className="d-none d-sm-none d-md-block d-lg-block">
+                                <Link to={'/premium'} className="text-decoration-none text-white me-3 d-flex" title="Nâng cấp tài khoản">
+                                    <i className="bi bi-magic"></i>
+                                    <span className="ms-1"> Premium</span>
+                                </Link>
+                            </div>
+                            <div className="d-none d-sm-block d-md-block d-lg-block nav-item dropdown">
+                                <span className=" dropdown-menu-end text-end">
+                                    <a className="text-decoration-none dropdown-toggle text-white " href="#"
+                                       role="button"><i className="bi bi-person-fill"></i> Tài khoản</a>
                                     <ul className="dropdown-menu" style={{zIndex: 9999}}>
                                         {currentUser ? (
                                             <>
@@ -199,8 +204,8 @@ const Layout = () => {
                         </button>
                         <div className="collapse navbar-collapse" id="collapsibleNavbar">
                             <ul className="navbar-nav">
-                                <div className="d-block d-sm-none d-md-none d-lg-none">
-                                    <div className="d-flex ">
+                                <div className="d-block col d-sm-none d-md-none d-lg-none">
+                                    <div className="d-flex mt-2">
                                         <input
                                             value={searchTerm}
                                             onChange={handleInputChange}
@@ -222,7 +227,7 @@ const Layout = () => {
                                 </li>
                                 <li className="nav-item dropdown">
                                     <a className="nav-link dropdown-toggle" href="#" role="button"
-                                       data-bs-toggle="dropdown">THỂ LOẠI</a>
+                                    >THỂ LOẠI</a>
                                     <ul className="dropdown-menu">
                                         {genreGroups.map((group, index) => (
                                             <li key={index}>
@@ -237,6 +242,13 @@ const Layout = () => {
                                         ))}
                                     </ul>
                                 </li>
+                                <div className="d-flex d-block col d-sm-none d-md-none d-lg-none">
+                                    <Link to={'/premium'} className="text-decoration-none text-white me-3"
+                                          title="Nâng cấp tài khoản">
+                                        <i className="bi bi-magic"></i>
+                                        <span> Premium</span>
+                                    </Link>
+                                </div>
                                 <div className="d-block d-sm-none d-md-none d-lg-none">
                                     <div className="nav-item dropdown dropdown-menu-end">
                                         <a className="nav-link dropdown-toggle text-white" href="#" role="button"

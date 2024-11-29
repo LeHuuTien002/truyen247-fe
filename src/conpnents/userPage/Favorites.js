@@ -5,6 +5,7 @@ import {getFavorites, removeFavorite} from "../../services/favoriteService";
 import Pagination from "../Pagination";
 
 const Favorites = () => {
+    const token = localStorage.getItem("token");
     const [favorites, setFavorites] = useState([]); // Danh sách truyện yêu thích
     const [filteredData, setFilteredData] = useState(favorites);
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ const Favorites = () => {
         // Lấy danh sách truyện yêu thích từ backend
         const fetchFavorites = async () => {
             try {
-                const data = await getFavorites(getUserId());
+                const data = await getFavorites(getUserId(), token);
                 setFavorites(data); // Cập nhật danh sách yêu thích
             } catch (error) {
                 console.error("Error fetching favorite comics:", error);
@@ -50,7 +51,7 @@ const Favorites = () => {
     // Xử lý khi bấm "Bỏ yêu thích"
     const handleRemoveFavorite = async (comicId) => {
         try {
-            await removeFavorite(getUserId(), comicId); // Gửi yêu cầu xóa
+            await removeFavorite(getUserId(), comicId, token); // Gửi yêu cầu xóa
             setFavorites(favorites.filter((comic) => comic.id !== comicId)); // Cập nhật danh sách
         } catch (error) {
             console.error("Error removing favorite comic:", error);
@@ -62,7 +63,7 @@ const Favorites = () => {
     }
 
     if (favorites?.length === 0) {
-        return <p>Không có truyện yêu thích nào!</p>; // Hiển thị khi không có truyện yêu thích
+        return <div className="container bg-dark p-5">Không có truyện yêu thích nào!</div>
     }
 
     return (
@@ -73,19 +74,21 @@ const Favorites = () => {
             </span>
             <div className="row">
                 {currentRows?.length > 0 ? (currentRows.map((comic) => (
-                    <div key={comic.comicId} onClick={() => handleNavigateComicDetailClick(comic.comicId)}
+                    <div key={comic.comicId}
                          className="d-flex flex-column col-6 col-sm-6 col-md-4 col-lg-3 mt-3 hover-text">
-                        <div className="card comic-card">
-                            <div className="image-container">
-                                <img className="card-img-top object-fit-cover comic-image"
-                                     loading="lazy"
-                                     src={comic.comicThumbnail}
-                                     alt={comic.comicName}
-                                     style={{width: "100%"}}/>
+                        <div onClick={() => handleNavigateComicDetailClick(comic.comicId)}>
+                            <div className="card comic-card">
+                                <div className="image-container">
+                                    <img className="card-img-top object-fit-cover comic-image"
+                                         loading="lazy"
+                                         src={comic.comicThumbnail}
+                                         alt={comic.comicName}
+                                         style={{width: "100%"}}/>
+                                </div>
                             </div>
-                        </div>
-                        <div className="card-body">
-                            <span className="card-title fs-6"><strong>{comic.comicName}</strong></span>
+                            <div className="card-body">
+                                <span className="card-title fs-6"><strong>{comic.comicName}</strong></span>
+                            </div>
                         </div>
                         <div className="card-body d-flex justify-content-center align-items-end">
                             <button
@@ -96,9 +99,8 @@ const Favorites = () => {
                             </button>
                         </div>
                     </div>
-                ))) : (<tr>
-                    <td colSpan="5" className="text-center">Không tìm thấy kết quả</td>
-                </tr>)}
+                ))) : (
+                    <div className="container bg-dark p-5">Không tìm thấy kết quả</div>)}
             </div>
             <Pagination
                 totalPages={totalPages}

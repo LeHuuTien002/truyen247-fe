@@ -10,18 +10,8 @@ const register = (username, email, password) => {
     });
 };
 
-const addStoryGenre = (storyGenreName, description) => {
-    return axios.post(API_URL + "addStoryGenre", {
-        storyGenreName, description
-    });
-};
-
 const login = (email, password) => {
-    return axios
-        .post(API_URL + "signin", {
-            email,
-            password,
-        })
+    return axios.post(API_URL + "signin", {email, password})
         .then((response) => {
             if (response.data.accessToken) {
                 localStorage.setItem("user", JSON.stringify(response.data));
@@ -31,13 +21,25 @@ const login = (email, password) => {
         });
 };
 
+const loginWithGoogle = (idToken) => {
+    return axios.post(API_URL + "google/signin", {idToken}).then((response) => {
+        if (response.data.accessToken) {
+            localStorage.setItem("user", JSON.stringify(response.data));
+            localStorage.setItem("token", response.data.accessToken);
+        }
+        console.log(response.data)
+        return response.data;
+    })
+}
+
 const logout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
 };
 
 export default {
     register,
     login,
     logout,
-    addStoryGenre
+    loginWithGoogle
 };

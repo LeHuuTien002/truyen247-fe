@@ -1,20 +1,20 @@
 import {useEffect} from 'react';
 import {checkHistoryExists, createHistory, updateHistory} from "../../services/historyService";
 
-const useHistoryHandler = ({userId, comicId, chapterId}) => {
+const useHistoryHandler = ({userId, comicId, chapterId, token}) => {
     useEffect(() => {
         const handleHistory = async () => {
             try {
-                const historyExists = await checkHistoryExists(userId, comicId);
+                const historyExists = await checkHistoryExists(userId, comicId, token);
                 const historyData = {userId, comicId, chapterId};
 
                 if (historyExists) {
                     // Nếu lịch sử đã tồn tại, cập nhật
-                    await updateHistory(historyData);
+                    await updateHistory(historyData, token);
                     console.log('Lịch sử đã được cập nhật.');
                 } else {
                     // Nếu chưa tồn tại, tạo mới
-                    await createHistory(historyData);
+                    await createHistory(historyData, token);
                     console.log('Lịch sử mới đã được tạo.');
                 }
             } catch (error) {

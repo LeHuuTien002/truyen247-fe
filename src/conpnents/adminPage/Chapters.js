@@ -4,13 +4,14 @@ import {getComicById} from "../../services/comicService";
 import Alert from "../utils/Alert";
 import {
     createChapter,
-    deleteChapter,
+    deleteChapter, getAllChapter,
     getChaptersByComicId,
     updateChapterByComicId
 } from "../../services/chapterService";
 import SearchBar from "../SearchBar";
 
 const Chapters = () => {
+    const token = localStorage.getItem("token");
     const [chapterList, setChapterList] = useState([]);
     const [filteredData, setFilteredData] = useState(chapterList);
     const [currentPage, setCurrentPage] = useState(1);
@@ -80,7 +81,7 @@ const Chapters = () => {
 
     const loadChapter = async () => {
         try {
-            const data = await getChaptersByComicId(comicId);
+            const data = await getAllChapter(comicId, token);
             console.log(data)
             const sortedData = data.sort((a, b) => b.chapterNumber - a.chapterNumber);
             setChapterList(sortedData);
@@ -96,7 +97,7 @@ const Chapters = () => {
         try {
             const {
                 success: successMessage
-            } = await createChapter(comicId, title, chapterNumber);
+            } = await createChapter(comicId, title, chapterNumber, token);
             console.log(successMessage)
             setSuccessMessage(successMessage);
             loadChapter();
@@ -113,7 +114,7 @@ const Chapters = () => {
         try {
             const {
                 success: successMessage
-            } = await updateChapterByComicId(comicId, chapterId, title, chapterNumber);
+            } = await updateChapterByComicId(comicId, chapterId, title, chapterNumber, token);
             setSuccessMessage(successMessage);
             loadChapter();
             handleResetClick();
@@ -127,7 +128,7 @@ const Chapters = () => {
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const {success: successMessage} = await deleteChapter(comicId, chapterId);
+            const {success: successMessage} = await deleteChapter(comicId, chapterId, token);
             loadChapter();
             setSuccessMessage(successMessage);
         } catch (error) {
@@ -225,8 +226,8 @@ const Chapters = () => {
                             <tr className="cursor-pointer" key={index}>
                                 <td>Chapter {chapter?.chapterNumber}</td>
                                 <td>{chapter?.title}</td>
-                                <td>{chapter?.createAt}</td>
-                                <td>{chapter?.updateAt === null ? "Chưa cập nhật" : comic?.updateAt}</td>
+                                <td>{new Date(chapter?.createAt).toLocaleString()}</td>
+                                <td>{chapter?.updateAt === null ? "Chưa cập nhật" : new Date(comic?.updateAt).toLocaleString()}</td>
                                 <td>
                                     <div className="d-flex justify-content-center">
                                         {/*Update*/}
@@ -259,7 +260,7 @@ const Chapters = () => {
                                                 <div className="modal-content">
                                                     <div className="modal-header">
                                                         <h5 className="modal-title" id="staticBackdropLabel">Cập nhật
-                                                            truyện</h5>
+                                                            chương</h5>
                                                         <button type="button" className="btn-close"
                                                                 data-bs-dismiss="modal"
                                                                 aria-label="Close"></button>
@@ -285,7 +286,7 @@ const Chapters = () => {
                                                             </div>
                                                             <button type="submit"
                                                                     className="btn btn-outline-warning form-control">Cập
-                                                                nhật truyện
+                                                                nhật chương
                                                             </button>
                                                         </form>
                                                     </div>
@@ -352,7 +353,8 @@ const Chapters = () => {
                                     </div>
                                     <Link
                                         className='fs-6 link-warning link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover'
-                                        to={`/admin/comics/${comic.id}/chapters/${chapter.id}/pages`}>Quản lý trang</Link>
+                                        to={`/admin/comics/${comic.id}/chapters/${chapter.id}/pages`}>Quản lý
+                                        trang</Link>
                                 </td>
                             </tr>
                         ))) : (<tr>

@@ -5,6 +5,8 @@ import '../../css/Home.css';
 import {getAllGenreName} from "../../services/genreService";
 
 const UserGenres = () => {
+    const token = localStorage.getItem("token");
+
     const {genreName} = useParams(); // Lấy tên thể loại từ URL
     const [comicList, setComicList] = useState([]);
     const [filteredData, setFilteredData] = useState(comicList);
