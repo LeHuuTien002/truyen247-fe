@@ -13,21 +13,25 @@ const Favorites = () => {
     const handleNavigateComicDetailClick = (id) => {
         navigate(`/comics/${id}`);
     };
-    useEffect(() => {
-        // Lấy danh sách truyện yêu thích từ backend
-        const fetchFavorites = async () => {
-            try {
-                const data = await getFavorites(getUserId(), token);
-                setFavorites(data); // Cập nhật danh sách yêu thích
-            } catch (error) {
-                console.error("Error fetching favorite comics:", error);
-            } finally {
-                setLoading(false); // Tắt trạng thái tải
-            }
-        };
 
+    const fetchFavorites = async () => {
+        try {
+            const data = await getFavorites(getUserId(), token);
+            console.log("favorites", data);
+            setFavorites(data); // Cập nhật danh sách yêu thích
+        } catch (error) {
+            console.error("Error fetching favorite comics:", error);
+        } finally {
+            setLoading(false); // Tắt trạng thái tải
+        }
+    };
+
+    useEffect(() => {
         fetchFavorites();
-        setFilteredData(favorites); // Khởi tạo filteredData với toàn bộ dữ liệu ban đầu
+    }, []);
+
+    useEffect(() => {
+        setFilteredData(favorites);
     }, [favorites]);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -67,11 +71,12 @@ const Favorites = () => {
     }
 
     return (
-        <div className="container bg-dark p-5">
-            <span> <Link to="/" className="text-decoration-none">Trang chủ </Link>
+        <div className="container bg-dark pt-1 pb-1">
+            <p> <Link to="/" className="text-decoration-none">Trang chủ </Link>
                 <i className="bi bi-chevron-double-right small"></i>
                 <span className="text-warning"> Truyện yêu thích</span>
-            </span>
+            </p>
+            <h4 className="text-warning text-center">TẤT CẢ TRUYỆN YÊU THÍCH</h4>
             <div className="row">
                 {currentRows?.length > 0 ? (currentRows.map((comic) => (
                     <div key={comic.comicId}
@@ -84,6 +89,20 @@ const Favorites = () => {
                                          src={comic.comicThumbnail}
                                          alt={comic.comicName}
                                          style={{width: "100%"}}/>
+                                </div>
+                                <div className="view-count d-flex justify-content-center p-1">
+                                    <div>
+                                        <i className="bi bi-eye me-1 text-warning"></i>
+                                        <span className="text-warning">{comic.views}</span>
+                                    </div>
+                                    <div className="ms-2">
+                                        <i className="bi bi-chat-dots-fill me-1 text-warning"></i>
+                                        <span className="text-warning">{comic.numberOfComment}</span>
+                                    </div>
+                                    <div className="ms-2">
+                                        <i className="bi bi-heart-fill me-1 text-danger"></i>
+                                        <span className="text-danger">{comic.favorites}</span>
+                                    </div>
                                 </div>
                             </div>
                             <div className="card-body">

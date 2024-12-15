@@ -1,11 +1,10 @@
 import React, {useEffect, useState} from "react";
-import {Link, useNavigate, useParams} from "react-router-dom";
-import {getComicById} from "../../services/comicService";
+import {Link, useParams} from "react-router-dom";
+import {getInfoComicForChapterList} from "../../services/comicService";
 import Alert from "../utils/Alert";
 import {
     createChapter,
     deleteChapter, getAllChapter,
-    getChaptersByComicId,
     updateChapterByComicId
 } from "../../services/chapterService";
 import SearchBar from "../SearchBar";
@@ -37,16 +36,20 @@ const Chapters = () => {
     const [chapterId, setChapterId] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
-
+    const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState("");
     const [chapterNumber, setChapterNumber] = useState(null);
 
     const loadComic = async () => {
+        setLoading(true)
         try {
-            const data = await getComicById(comicId);
+            const data = await getInfoComicForChapterList(comicId);
+            console.log(data)
             setComic(data);
         } catch (error) {
             setErrorMessage(error.message);
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -80,6 +83,7 @@ const Chapters = () => {
     }
 
     const loadChapter = async () => {
+        setLoading(true)
         try {
             const data = await getAllChapter(comicId, token);
             console.log(data)
@@ -87,12 +91,15 @@ const Chapters = () => {
             setChapterList(sortedData);
         } catch (error) {
             setErrorMessage(error.message);
+        } finally {
+            setLoading(false)
         }
     };
 
     const handleCreateSubmit = async (e) => {
         setSuccessMessage('');
         setErrorMessage('');
+        setLoading(true)
         e.preventDefault();
         try {
             const {
@@ -100,10 +107,12 @@ const Chapters = () => {
             } = await createChapter(comicId, title, chapterNumber, token);
             console.log(successMessage)
             setSuccessMessage(successMessage);
-            loadChapter();
+            await loadChapter();
             handleResetClick();
         } catch (error) {
             setErrorMessage(error.message);
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -111,15 +120,18 @@ const Chapters = () => {
         e.preventDefault();
         setSuccessMessage('');
         setErrorMessage('');
+        setLoading(true)
         try {
             const {
                 success: successMessage
             } = await updateChapterByComicId(comicId, chapterId, title, chapterNumber, token);
             setSuccessMessage(successMessage);
-            loadChapter();
+            await loadChapter();
             handleResetClick();
         } catch (error) {
             setErrorMessage(error.message);
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -127,12 +139,15 @@ const Chapters = () => {
         e.preventDefault();
         setSuccessMessage('');
         setErrorMessage('');
+        setLoading(true)
         try {
             const {success: successMessage} = await deleteChapter(comicId, chapterId, token);
-            loadChapter();
+            await loadChapter();
             setSuccessMessage(successMessage);
         } catch (error) {
             setErrorMessage(error.message);
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -143,7 +158,7 @@ const Chapters = () => {
 
 
     return (
-        <div className="container bg-dark p-5">
+        <div className="container bg-dark pt-5 pb-5">
             <span> <Link to={`/admin/comics`} className="text-decoration-none">Quản lý truyện</Link>
                 <i className="bi bi-chevron-double-right small"></i>
                 <span className="text-warning"> Danh sách chương</span>
@@ -151,7 +166,7 @@ const Chapters = () => {
             <h2 className="text-warning text-center">QUẢN LÝ CHƯƠNG</h2>
             <div className="container mt-3">
                 <h5 className="text-center">{comic?.name}</h5>
-                <p className="text-center">[Cập nhật lúc: <span>{comic?.updateAt}</span>]</p>
+                <p className="text-center">[Cập nhật lúc: <span>{new Date(comic?.updateAt).toLocaleString()}</span>]</p>
                 <button onClick={handleResetClick} type="button" className="btn btn-outline-warning"
                         data-bs-toggle="modal"
                         data-bs-target="#staticBackdrop">
@@ -181,7 +196,13 @@ const Chapters = () => {
                                         aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
-                                {/*<Comic/>*/}
+                                {loading && (
+                                    <div className="overlay">
+                                        <div className="spinner-border text-warning" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                )}
                                 <form onSubmit={handleCreateSubmit} className="container">
                                     <div className="mb-3">
                                         <label htmlFor="comicName" className="form-label">Tiêu đề: </label>
@@ -196,8 +217,8 @@ const Chapters = () => {
                                                required className="form-control" id="otherComicName"
                                                placeholder="Nhập số chương"/>
                                     </div>
-                                    <button type="submit" className="btn btn-outline-warning form-control">Tạo chương
-                                        mới
+                                    <button type="submit"
+                                            className="btn btn-outline-warning form-control"> {loading ? 'Đang tạo chương...' : 'Tạo chương mới'}
                                     </button>
                                 </form>
                             </div>
@@ -266,6 +287,14 @@ const Chapters = () => {
                                                                 aria-label="Close"></button>
                                                     </div>
                                                     <div className="modal-body text-start">
+                                                        {loading && (
+                                                            <div className="overlay">
+                                                                <div className="spinner-border text-warning"
+                                                                     role="status">
+                                                                    <span className="visually-hidden">Loading...</span>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                         <form onSubmit={handleUpdateSubmit} className="container">
                                                             <div className="mb-3">
                                                                 <label htmlFor="title" className="form-label">Tiêu
@@ -274,6 +303,7 @@ const Chapters = () => {
                                                                        onChange={(e) => setTitle(e.target.value)}
                                                                        className="form-control"
                                                                        id="title"
+                                                                       required
                                                                        placeholder="Nhập tiêu đề chương"/>
                                                             </div>
                                                             <div className="mb-3">
@@ -282,11 +312,11 @@ const Chapters = () => {
                                                                 <input type="text" value={chapterNumber}
                                                                        onChange={(e) => setChapterNumber(e.target.value)}
                                                                        className="form-control" id="otherComicName"
+                                                                       required
                                                                        placeholder="Nhập số chương"/>
                                                             </div>
                                                             <button type="submit"
-                                                                    className="btn btn-outline-warning form-control">Cập
-                                                                nhật chương
+                                                                    className="btn btn-outline-warning form-control"> {loading ? 'Đang cập nhật chương...' : 'Cập nhật chương'}
                                                             </button>
                                                         </form>
                                                     </div>
@@ -336,15 +366,23 @@ const Chapters = () => {
                                                                 aria-label="Close"></button>
                                                     </div>
                                                     <div className="modal-body">
+                                                        {loading && (
+                                                            <div className="overlay">
+                                                                <div className="spinner-border text-warning"
+                                                                     role="status">
+                                                                    <span className="visually-hidden">Loading...</span>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                         Bạn có muốn xóa chương này không?
                                                     </div>
                                                     <div className="modal-footer">
                                                         <button type="button" className="btn btn-outline-warning"
-                                                                data-bs-dismiss="modal">No
+                                                                data-bs-dismiss="modal">Không
                                                         </button>
                                                         <button onClick={handleDelete} type="button"
                                                                 data-bs-dismiss="modal"
-                                                                className="btn btn-outline-danger">Yes
+                                                                className="btn btn-outline-danger"> {loading ? 'Đang xóa...' : 'Xóa'}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -364,29 +402,64 @@ const Chapters = () => {
                     </table>
                     <nav>
                         <ul className="pagination justify-content-center">
+                            {/* Nút Previous */}
                             <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={() => handleClick(currentPage - 1)}>
-                                    Previous
+                                    <i className="bi bi-chevron-left"></i> {/* Mũi tên trái */}
                                 </button>
                             </li>
 
-                            {Array.from({length: totalPages}, (_, i) => (
-                                <li
-                                    key={i}
-                                    className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-                                >
-                                    <button
-                                        className="page-link"
-                                        onClick={() => handleClick(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                </li>
-                            ))}
+                            {/* Trang đầu tiên */}
+                            {currentPage > 3 && (
+                                <>
+                                    <li className="page-item">
+                                        <button className="page-link" onClick={() => handleClick(1)}>
+                                            1
+                                        </button>
+                                    </li>
+                                    <li className="page-item disabled">
+                                        <span className="page-link">...</span>
+                                    </li>
+                                </>
+                            )}
 
+                            {/* Các trang xung quanh trang hiện tại */}
+                            {Array.from({length: totalPages}, (_, i) => {
+                                const page = i + 1;
+                                if (
+                                    page === 1 ||
+                                    page === totalPages ||
+                                    (page >= currentPage - 2 && page <= currentPage + 2)
+                                ) {
+                                    return (
+                                        <li key={i} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                                            <button className="page-link" onClick={() => handleClick(page)}>
+                                                {page}
+                                            </button>
+                                        </li>
+                                    );
+                                }
+                                return null;
+                            })}
+
+                            {/* Trang cuối cùng */}
+                            {currentPage < totalPages - 2 && (
+                                <>
+                                    <li className="page-item disabled">
+                                        <span className="page-link">...</span>
+                                    </li>
+                                    <li className="page-item">
+                                        <button className="page-link" onClick={() => handleClick(totalPages)}>
+                                            {totalPages}
+                                        </button>
+                                    </li>
+                                </>
+                            )}
+
+                            {/* Nút Next */}
                             <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={() => handleClick(currentPage + 1)}>
-                                    Next
+                                    <i className="bi bi-chevron-right"></i> {/* Mũi tên phải */}
                                 </button>
                             </li>
                         </ul>

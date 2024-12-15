@@ -6,6 +6,7 @@ const ChapterBar = ({chapterId, isScrolling, scrollSpeed, setIsScrolling,setScro
     const [scrollDirection, setScrollDirection] = useState(null);
     const [lastScrollTop, setLastScrollTop] = useState(0);
 
+
     useEffect(() => {
         const handleScroll = () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -22,14 +23,14 @@ const ChapterBar = ({chapterId, isScrolling, scrollSpeed, setIsScrolling,setScro
     }, [lastScrollTop]);
 
     return (
-        <>
+        <div>
             <div className={`chapter-bar top ${scrollDirection === 'up' ? 'visible' : ''}`}>
                 <ChapterSelector chapterId={chapterId} isScrolling={isScrolling} scrollSpeed={scrollSpeed} setIsScrolling={setIsScrolling} setScrollSpeed={setScrollSpeed}/>
             </div>
             <div className={`chapter-bar bottom ${scrollDirection === 'down' ? 'visible' : ''}`}>
                 <ChapterSelector chapterId={chapterId} isScrolling={isScrolling} scrollSpeed={scrollSpeed} setIsScrolling={setIsScrolling} setScrollSpeed={setScrollSpeed}/>
             </div>
-        </>
+        </div>
     );
 };
 

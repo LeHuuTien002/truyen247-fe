@@ -18,21 +18,25 @@ const History = () => {
     const currentRows = filteredData?.slice(indexOfFirstRow, indexOfLastRow);
 
     const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
+
+    // Lấy danh sách truyện yêu thích từ backend
+    const fetchHistory = async () => {
+        try {
+            const data = await getHistoryByUser(getUserId(), token);
+            console.log("history", data);
+            setHistoryList(data); // Cập nhật danh sách yêu thích
+        } catch (error) {
+            console.error("Error fetching history comics:", error);
+        } finally {
+            setLoading(false); // Tắt trạng thái tải
+        }
+    };
+
     useEffect(() => {
-        // Lấy danh sách truyện yêu thích từ backend
-        const fetchHistory = async () => {
-            try {
-                const data = await getHistoryByUser(getUserId(), token);
-                setHistoryList(data); // Cập nhật danh sách yêu thích
-            } catch (error) {
-                console.error("Error fetching history comics:", error);
-            } finally {
-                setLoading(false); // Tắt trạng thái tải
-            }
-        };
-
         fetchHistory();
+    }, [token]);
 
+    useEffect(() => {
         setFilteredData(historyList); // Khởi tạo filteredData với toàn bộ dữ liệu ban đầu
     }, [historyList]);
 
@@ -68,11 +72,12 @@ const History = () => {
         navigate(`/comics/${id}`);
     };
     return (
-        <div className="container bg-dark p-5">
-            <span> <Link to="/" className="text-decoration-none">Trang chủ </Link>
+        <div className="container bg-dark pt-1 pb-1">
+            <p> <Link to="/" className="text-decoration-none">Trang chủ </Link>
                 <i className="bi bi-chevron-double-right small"></i>
                 <span className="text-warning"> Lịch sử đọc</span>
-            </span>
+            </p>
+            <h4 className="text-warning text-center">TẤT CẢ LỊCH SỬ ĐỌC TRUYỆN</h4>
             <div className="row">
                 {currentRows?.length > 0 ? (currentRows.map((history) => (
                     <div key={history.id}
@@ -85,6 +90,20 @@ const History = () => {
                                      src={history.comicThumbnail}
                                      alt={history.comicName}
                                      style={{width: "100%"}}/>
+                            </div>
+                            <div className="view-count d-flex justify-content-center p-1">
+                                <div>
+                                    <i className="bi bi-eye me-1 text-warning"></i>
+                                    <span className="text-warning">{history.views}</span>
+                                </div>
+                                <div className="ms-2">
+                                    <i className="bi bi-chat-dots-fill me-1 text-warning"></i>
+                                    <span className="text-warning">{history.numberOfComment}</span>
+                                </div>
+                                <div className="ms-2">
+                                    <i className="bi bi-heart-fill me-1 text-danger"></i>
+                                    <span className="text-danger">{history.favorites}</span>
+                                </div>
                             </div>
                         </div>
                         <div className="card-body">

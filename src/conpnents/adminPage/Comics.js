@@ -5,6 +5,7 @@ import SearchBar from "../SearchBar";
 import {Link} from "react-router-dom";
 import Select from "react-select";
 import {getAllGenre, getAllGenreByComicId} from "../../services/genreService";
+import '../../css/Loading.css'
 
 
 // Tùy chỉnh style của `react-select` với màu nền đen và chữ trắng
@@ -99,6 +100,8 @@ const Comics = () => {
 
     const [showFullContent, setShowFullContent] = useState({});
 
+    const [loading, setLoading] = useState(false);
+
 
     // Hàm xử lý khi nhấn nút "Xem thêm"
     const toggleContentVisibilly = (index) => {
@@ -136,7 +139,6 @@ const Comics = () => {
 
     const handleEditClick = (comic) => {
         setId(comic.id);
-        console.log(comic.id)
         setName(comic.name);
         setOtherName(comic.otherName);
         setStatus(comic.status);
@@ -162,18 +164,21 @@ const Comics = () => {
 
     const handleUpdateSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true)
         const updatedGenres = selectedGenres.map((genre) => genre.value);
         setSuccessMessage('');
         setErrorMessage('');
         try {
             const {
                 success: successMessage
-            } = await updateComic(id, name, otherName, status, content, author, activate, updatedGenres, file);
+            } = await updateComic(id, name, otherName, status, content, author, activate, updatedGenres, file, token);
             setSuccessMessage(successMessage);
             loadComic();
             handleResetClick();
         } catch (error) {
             setErrorMessage(error.message);
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -185,7 +190,7 @@ const Comics = () => {
         try {
             const {
                 success: successMessage
-            } = await createComic(name, otherName, status, content, author, activate, updatedGenres, file);
+            } = await createComic(name, otherName, status, content, author, activate, updatedGenres, file, token);
             loadComic();
             setSuccessMessage(successMessage);
             handleResetClick();
@@ -199,7 +204,7 @@ const Comics = () => {
         setSuccessMessage('');
         setErrorMessage('');
         try {
-            const {success: successMessage} = await deleteComic(id);
+            const {success: successMessage} = await deleteComic(id, token);
             loadComic();
             setSuccessMessage(successMessage);
         } catch (error) {
@@ -250,9 +255,9 @@ const Comics = () => {
 
     useEffect(() => {
         loadGenre();
-    }, []);
+    }, [token]);
     return (
-        <div className="container bg-dark p-5">
+        <div className="container bg-dark pt-5 pb-5">
             <button onClick={handleResetClick} type="button" className="btn btn-outline-warning" data-bs-toggle="modal"
                     data-bs-target="#staticBackdrop">
                 Tạo truyện
@@ -281,6 +286,13 @@ const Comics = () => {
                                     aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
+                            {loading && (
+                                <div className="overlay">
+                                    <div className="spinner-border text-warning" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            )}
                             {/*<Comic/>*/}
                             <form onSubmit={handleCreateSubmit} className="container">
                                 <div className="mb-3">
@@ -361,7 +373,8 @@ const Comics = () => {
                                         </label>
                                     </div>
                                 </div>
-                                <button type="submit" className="btn btn-outline-warning form-control">Tạo truyện mới
+                                <button type="submit"
+                                        className="btn btn-outline-warning form-control">{loading ? 'Đang tạo truyện mới...' : 'Tạo truyện mới'}
                                 </button>
                             </form>
                         </div>
@@ -445,6 +458,13 @@ const Comics = () => {
                                                             aria-label="Close"></button>
                                                 </div>
                                                 <div className="modal-body">
+                                                    {loading && (
+                                                        <div className="overlay">
+                                                            <div className="spinner-border text-warning" role="status">
+                                                                <span className="visually-hidden">Loading...</span>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                     <form onSubmit={handleUpdateSubmit} className="container">
                                                         <div className="mb-3">
                                                             <label htmlFor="comicName" className="form-label">Tên
@@ -452,12 +472,14 @@ const Comics = () => {
                                                             <input type="text" value={name}
                                                                    onChange={(e) => setName(e.target.value)}
                                                                    className="form-control"
+                                                                   required
                                                                    id="comicName" placeholder="Nhập tên truyện mới"/>
                                                         </div>
                                                         <div className="mb-3">
                                                             <label htmlFor="otherComicName" className="form-label">Tên
                                                                 khác: </label>
                                                             <input type="text" value={otherName}
+                                                                   required
                                                                    onChange={(e) => setOtherName(e.target.value)}
                                                                    className="form-control" id="otherComicName"
                                                                    placeholder="Nhập truyện có tên khác"/>
@@ -466,6 +488,7 @@ const Comics = () => {
                                                             <label htmlFor="authorName" className="form-label">Tác
                                                                 giả: </label>
                                                             <input type="text" value={author}
+                                                                   required
                                                                    onChange={(e) => setAuthor(e.target.value)}
                                                                    className="form-control" id="authorName"
                                                                    placeholder="Nhập tên tác giả"/>
@@ -487,6 +510,7 @@ const Comics = () => {
                                                             <label htmlFor="status" className="form-label">Tình
                                                                 trang: </label>
                                                             <input type="text" value={status}
+                                                                   required
                                                                    onChange={(e) => setStatus(e.target.value)}
                                                                    className="form-control" id="status"
                                                                    placeholder="Nhập tình trạng truyện"/>
@@ -495,6 +519,7 @@ const Comics = () => {
                                                             <label htmlFor="content" className="form-label">Nội
                                                                 dung: </label>
                                                             <textarea className="form-control" value={content}
+                                                                      required
                                                                       onChange={(e) => setContent(e.target.value)}
                                                                       id="content" rows="5"></textarea>
                                                         </div>
@@ -513,7 +538,7 @@ const Comics = () => {
                                                             <label htmlFor="coverPhoto" className="input-group-text">Tải
                                                                 lên ảnh bìa: </label>
                                                             <input type="file"
-                                                                   onChange={handleFileChange} required
+                                                                   onChange={handleFileChange}
                                                                    className="form-control"
                                                                    src={file}
                                                                    key={inputKey}
@@ -543,9 +568,7 @@ const Comics = () => {
                                                             </div>
                                                         </div>
                                                         <button type="submit"
-                                                                className="btn btn-outline-warning form-control">Cập
-                                                            nhật
-                                                            truyện
+                                                                className="btn btn-outline-warning form-control">{loading ? 'Đang cập nhật truyện...' : 'Cập nhật truyện'}
                                                         </button>
                                                     </form>
                                                 </div>
@@ -618,29 +641,64 @@ const Comics = () => {
                 </table>
                 <nav>
                     <ul className="pagination justify-content-center">
+                        {/* Nút Previous */}
                         <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={() => handleClick(currentPage - 1)}>
-                                Previous
+                                <i className="bi bi-chevron-left"></i> {/* Mũi tên trái */}
                             </button>
                         </li>
 
-                        {Array.from({length: totalPages}, (_, i) => (
-                            <li
-                                key={i}
-                                className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-                            >
-                                <button
-                                    className="page-link"
-                                    onClick={() => handleClick(i + 1)}
-                                >
-                                    {i + 1}
-                                </button>
-                            </li>
-                        ))}
+                        {/* Trang đầu tiên */}
+                        {currentPage > 3 && (
+                            <>
+                                <li className="page-item">
+                                    <button className="page-link" onClick={() => handleClick(1)}>
+                                        1
+                                    </button>
+                                </li>
+                                <li className="page-item disabled">
+                                    <span className="page-link">...</span>
+                                </li>
+                            </>
+                        )}
 
+                        {/* Các trang xung quanh trang hiện tại */}
+                        {Array.from({length: totalPages}, (_, i) => {
+                            const page = i + 1;
+                            if (
+                                page === 1 ||
+                                page === totalPages ||
+                                (page >= currentPage - 2 && page <= currentPage + 2)
+                            ) {
+                                return (
+                                    <li key={i} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                                        <button className="page-link" onClick={() => handleClick(page)}>
+                                            {page}
+                                        </button>
+                                    </li>
+                                );
+                            }
+                            return null;
+                        })}
+
+                        {/* Trang cuối cùng */}
+                        {currentPage < totalPages - 2 && (
+                            <>
+                                <li className="page-item disabled">
+                                    <span className="page-link">...</span>
+                                </li>
+                                <li className="page-item">
+                                    <button className="page-link" onClick={() => handleClick(totalPages)}>
+                                        {totalPages}
+                                    </button>
+                                </li>
+                            </>
+                        )}
+
+                        {/* Nút Next */}
                         <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={() => handleClick(currentPage + 1)}>
-                                Next
+                                <i className="bi bi-chevron-right"></i> {/* Mũi tên phải */}
                             </button>
                         </li>
                     </ul>

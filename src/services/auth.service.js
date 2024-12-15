@@ -10,16 +10,19 @@ const register = (username, email, password) => {
     });
 };
 
-const login = (email, password) => {
-    return axios.post(API_URL + "signin", {email, password})
-        .then((response) => {
-            if (response.data.accessToken) {
-                localStorage.setItem("user", JSON.stringify(response.data));
-                localStorage.setItem("token", response.data.accessToken);
-            }
-            return response.data;
-        });
+const login = async (email, password) => {
+    try {
+        const response = await axios.post(API_URL + "signin", {email, password});
+        if (response.data.accessToken) {
+            localStorage.setItem("user", JSON.stringify(response.data));
+            localStorage.setItem("token", response.data.accessToken);
+        }
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
+
 
 const loginWithGoogle = (idToken) => {
     return axios.post(API_URL + "google/signin", {idToken}).then((response) => {
@@ -27,7 +30,6 @@ const loginWithGoogle = (idToken) => {
             localStorage.setItem("user", JSON.stringify(response.data));
             localStorage.setItem("token", response.data.accessToken);
         }
-        console.log(response.data)
         return response.data;
     })
 }

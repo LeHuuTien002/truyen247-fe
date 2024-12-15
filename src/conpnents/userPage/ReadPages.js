@@ -1,7 +1,7 @@
 import {useParams} from "react-router-dom";
 import {getAllPageByChapterId} from "../../services/pageService";
 import React, {useEffect, useState} from "react";
-import Page from "./Page";
+import Page from "../utils/Page";
 import "../../css/CustomPage.css";
 import ChapterBar from "./ChapterBar";
 
@@ -42,7 +42,7 @@ const ReadPages = () => {
         <div>
             <ChapterBar chapterId={chapterId} isScrolling={isScrolling} scrollSpeed={scrollSpeed}
                         setIsScrolling={setIsScrolling} setScrollSpeed={setScrollSpeed}/>
-            <div className="container pb-5 pt-5 bg-dark">
+            <div className="container pb-1 pt-1 bg-dark">
                 <div className="comic-reader">
                     {pageList.map((imageSrc) => (
                         <Page key={imageSrc?.id} imageSrc={imageSrc?.imageUrl}/>

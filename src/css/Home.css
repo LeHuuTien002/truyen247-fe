@@ -19,6 +19,15 @@
     cursor: pointer;
 }
 
+.hover-li:hover {
+    background-color: gray;
+    cursor: pointer;
+}
+
+.text-default {
+    color: white;
+}
+
 /* Container chính của card */
 .comic-card {
     overflow: hidden; /* Đảm bảo ảnh không vượt ra ngoài */

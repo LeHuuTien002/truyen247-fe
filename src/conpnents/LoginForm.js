@@ -4,46 +4,20 @@ import {useDispatch, useSelector} from "react-redux";
 
 import {login, loginWithGoogle} from "../actions/auth";
 
-import Form from "react-validation/build/form";
-import Input from "react-validation/build/input";
-import CheckButton from "react-validation/build/button";
 import Alert from "./utils/Alert";
 import {setMessage} from "../actions/message";
 import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google";
-import axios from "axios";
 
-const required = (value) => {
-    if (!value) {
-        return (
-            <div className="alert alert-danger">
-                Trường này là bắt buộc!
-            </div>
-        )
-    }
-}
-
-const validatePassword = (value) => {
-    if (value.length < 6) {
-        return (
-            <div className="alert alert-danger">
-                Mật khẩu phải có ít nhất 6 ký tự.
-            </div>
-        )
-    }
-}
 const LoginForm = () => {
     let navigate = useNavigate();
 
-    const form = useRef();
-    const checkBtn = useRef();
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
 
     const {message} = useSelector(state => state.message);
-    const [successMessage, setSuccessMessage] = useState(message);
     const {isLoggedIn, user: currentUser} = useSelector((state) => state.auth);
 
     const dispatch = useDispatch();
@@ -57,36 +31,32 @@ const LoginForm = () => {
         const password = e.target.value;
         setPassword(password);
     }
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
 
     const handleLogin = (e) => {
-        e.preventDefault();
-        setSuccessMessage(message);
+        e.preventDefault()
         setLoading(true);
 
-        form.current.validateAll();
 
-        if (checkBtn.current.context._errors.length === 0) {
-            dispatch(login(email, password))
-                .then((response) => {
-                    // Dùng response trả về từ action login để kiểm tra vai trò
-                    if (response && response.roles && response.roles.includes('ROLE_ADMIN')) {
-                        navigate('/admin'); // Chuyển đến trang /admin nếu là ADMIN
-                    } else {
-                        navigate('/'); // Chuyển đến trang chủ nếu không phải ADMIN
-                    }
-                    setLoading(false);
-                })
-                .catch(() => {
-                    setLoading(false);
-                });
-        } else {
-            setLoading(false);
-        }
+        dispatch(login(email, password))
+            .then((response) => {
+                // Dùng response trả về từ action login để kiểm tra vai trò
+                if (response && response.roles && response.roles.includes('ROLE_ADMIN')) {
+                    navigate('/admin'); // Chuyển đến trang /admin nếu là ADMIN
+                } else {
+                    navigate('/'); // Chuyển đến trang chủ nếu không phải ADMIN
+                }
+                setLoading(false);
+            })
+            .catch(() => {
+                setLoading(false);
+            });
     };
 
     const handleSuccess = async (credentialResponse) => {
         setLoading(true)
-        setSuccessMessage(message)
         const idToken = credentialResponse.credential;
         dispatch(loginWithGoogle(idToken)).then((response) => {
             if (response && response.roles && response.roles.includes('ROLE_ADMIN')) {
@@ -96,12 +66,14 @@ const LoginForm = () => {
             }
             setLoading(false);
         }).catch(() => {
+
             setLoading(false)
         });
     };
 
     const handleError = () => {
         console.error("Google Login Failed");
+        setLoading(false)
     };
 
     // Tự động chuyển hướng nếu đã đăng nhập
@@ -116,46 +88,61 @@ const LoginForm = () => {
     }, [isLoggedIn, currentUser, navigate]);
 
     return (
-        <div className="container bg-dark p-5">
+        <div className="container bg-dark pt-5 pb-5">
             <span> <Link to="/" className="text-decoration-none">Trang chủ </Link>
                 <i className="bi bi-chevron-double-right"></i>
                 <span className="text-warning"> Đăng nhập</span>
             </span>
-            {successMessage && (
-                <Alert
-                    message={successMessage}
-                    type="danger"
-                    onClose={() => setSuccessMessage('')}
-                />
+            {message && (
+                <Alert message={message} type="danger" onClose={() => dispatch(setMessage(''))}/>
             )}
-            <Form onSubmit={handleLogin} ref={form} className="container p-4">
+            <form onSubmit={handleLogin} className="p-4 container">
                 <h2 className="text-warning text-center">Đăng nhập</h2>
                 <div className="mb-3 mt-3">
                     <label htmlFor="email">Email:</label>
-                    <Input
+                    <input
                         type="email"
                         className="form-control"
                         id="email"
                         name="email"
                         onChange={onChangeEmail}
                         value={email}
-                        validations={[required]}
+                        required
                     />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="pwd">Mật khẩu:</label>
-                    <Input
-                        type="password"
-                        className="form-control"
-                        id="pwd"
-                        name="password"
-                        value={password}
-                        onChange={onChangePassword}
-                        validations={[required, validatePassword]}/>
+                    <label htmlFor="pwd" className="form-label">Mật khẩu:</label>
+                    <div className="input-group">
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            className="form-control"
+                            id="pwd"
+                            name="password"
+                            aria-describedby="password-addon"
+                            value={password}
+                            onChange={onChangePassword}
+                            required
+                            minLength={6}
+                        />
+                        <button
+                            className="btn btn-outline-secondary"
+                            type="button"
+                            id="password-addon"
+                            onClick={togglePasswordVisibility}
+                            style={{borderRadius: '0 0.25rem 0.25rem 0'}}
+                        >
+                            {showPassword ? (
+                                <i className="bi bi-eye-slash-fill"></i>
+                            ) : (
+                                <i className="bi bi-eye-fill"></i>
+                            )}
+                        </button>
+                    </div>
                 </div>
+
                 <div className="form-check mb-3 text-end">
                     <label className="form-check-label me-3">
-                        <Link className="text-decoration-none text-warning" to="/repassword">Quên mật khẩu </Link>
+                        <Link className="text-decoration-none text-warning" to="/forgot-password">Quên mật khẩu </Link>
                     </label>
                     <label className="form-check-label">
                         <Link className="text-decoration-none text-warning" to="/register"> Đăng ký</Link>
@@ -176,8 +163,7 @@ const LoginForm = () => {
                         />
                     </div>
                 </GoogleOAuthProvider>
-                <CheckButton style={{display: "none"}} ref={checkBtn}/>
-            </Form>
+            </form>
         </div>
     )
 }

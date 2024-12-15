@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const createComic = async (name, otherName, status, content, author, activate, updatedGenres, file, token) => {
+    console.log(name, content, author, activate, updatedGenres, file, token);
     try {
         const formData = new FormData();
         // Tạo đối tượng ComicRequest và chuyển thành Blob
@@ -38,7 +39,8 @@ const createComic = async (name, otherName, status, content, author, activate, u
     }
 }
 
-const updateComic = async (id, name, otherName, status, content, author, activate, updatedGenres, file,token) => {
+const updateComic = async (id, name, otherName, status, content, author, activate, updatedGenres, file, token) => {
+    console.log(id, name, content, author, activate, updatedGenres, file, token);
     try {
         const formData = new FormData();
         // Tạo đối tượng ComicRequest và chuyển thành Blob
@@ -76,7 +78,7 @@ const updateComic = async (id, name, otherName, status, content, author, activat
     }
 }
 
-const deleteComic = async (id,token) => {
+const deleteComic = async (id, token) => {
     try {
         const response = await axios.delete(`http://localhost:8080/api/admin/comics/${id}/delete`, {
             headers: {
@@ -129,6 +131,15 @@ const getComicById = async (comicId) => {
     }
 }
 
+const getInfoComicForChapterList = async (comicId) => {
+    try {
+        const response = await axios.get(`http://localhost:8080/api/public/comics/${comicId}/chapters`)
+        return response.data;
+    } catch (error) {
+        throw new Error("Có lỗi xảy ra khi tải dữ liệu!");
+    }
+}
+
 const getComicsByGenre = async (genreName) => {
     let url = "http://localhost:8080/api/public/comics/list";
     if (genreName !== "Tất cả") {
@@ -152,4 +163,14 @@ const searchComics = async (comicName) => {
 };
 
 
-export {createComic, getAllComics, getComicById, updateComic, deleteComic, getComicsByGenre, searchComics, getAllComicsIsActive};
+export {
+    createComic,
+    getAllComics,
+    getComicById,
+    updateComic,
+    deleteComic,
+    getComicsByGenre,
+    searchComics,
+    getAllComicsIsActive,
+    getInfoComicForChapterList
+};

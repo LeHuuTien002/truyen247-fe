@@ -39,7 +39,7 @@ function ChapterSelector({chapterId, isScrolling, scrollSpeed, setIsScrolling, s
 
     useEffect(() => {
         loadChapter();
-    }, []); // Chạy lại khi token thay đổi
+    }, [chapterId]); // Chạy lại khi token thay đổi
 
 
     useEffect(() => {
@@ -103,46 +103,43 @@ function ChapterSelector({chapterId, isScrolling, scrollSpeed, setIsScrolling, s
 
     return (
         <div className="position-relative">
-            <div className="d-flex align-items-center p-3 me-5" ref={dropdownRef}>
+            <div className="d-flex align-items-center container" ref={dropdownRef}>
                 <Link to={'/'} title='Trang chủ' className="navbar-brand fs-2"><i
                     className="bi bi-house hover-text"></i></Link>
                 <Link to={`/comics/${comicId}`} title='Danh sách chương' className="navbar-brand fs-1 ms-2 me-2"><i
                     className="bi bi-list-task hover-text"></i></Link>
                 <button
                     onClick={goToPreviousChapter}
-                    className="btn btn-outline-warning"
+                    className="btn btn-outline-warning btn-sm"
                     disabled={selectedIndex <= 1}
                 >
                     &lt;
                 </button>
-                <button onClick={toggleDropdown} className="btn btn-outline-warning mx-2 flex-grow-1">
-                    Chương {selectedIndex} ▼
+                <button onClick={toggleDropdown} className="btn btn-outline-warning mx-2 btn-sm d-flex">
+                    <span className="d-block">{selectedIndex}</span>
+                    <span className="d-block"> ▼</span>
                 </button>
                 <button
                     onClick={goToNextChapter}
-                    className="btn btn-outline-warning"
+                    className="btn btn-outline-warning btn-sm"
                     disabled={selectedIndex >= chapterList.length}
                 >
                     &gt;
                 </button>
-                <div className="control-bar d-flex ms-1">
-                    <button className="btn btn-outline-warning" onClick={() => setIsScrolling(!isScrolling)}>
-                        {isScrolling ? "Dừng cuộn" : "Bắt đầu cuộn"}
-                    </button>
-                    {isScrolling && (
-                        <div className="d-flex align-items-center ms-1">
-                            <label htmlFor="scrollSpeed">Tốc độ: </label>
-                            <input
-                                type="range"
-                                id="scrollSpeed"
-                                min="1"
-                                max="10"
-                                value={scrollSpeed}
-                                onChange={(e) => setScrollSpeed(Number(e.target.value))}
-                            />
-                        </div>
-                    )}
-                </div>
+                <button className="btn btn-outline-warning btn-sm ms-1" onClick={() => setIsScrolling(!isScrolling)}>
+                    {isScrolling ? "Stop" : "Auto"}
+                </button>
+                {isScrolling && (
+                    <input
+                        className=" small-range ms-1"
+                        type="range"
+                        id="scrollSpeed"
+                        min="1"
+                        max="10"
+                        value={scrollSpeed}
+                        onChange={(e) => setScrollSpeed(Number(e.target.value))}
+                    />
+                )}
             </div>
 
             {/* Modal hiển thị trên hoặc dưới dựa vào vị trí */}

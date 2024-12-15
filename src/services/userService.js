@@ -1,10 +1,42 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/public/users';
+export const forgotPassword = async (email) => {
+    console.log(email)
+    try {
+        const response = await axios.post(`http://localhost:8080/api/auth/forgot-password`, null, {
+            params: {email}
+        })
+        return response.data;
+    } catch (error) {
+        throw new Error('Đã xảy ra lỗi không xác định.');
+    }
+}
+
+export const resetPassword = async (token, newPassword) => {
+    try {
+        const response = await axios.post(`http://localhost:8080/api/auth/reset-password`, null, {
+            params: {token, newPassword}
+        })
+        return response.data;
+    } catch (error) {
+        throw new Error('Đã xảy ra lỗi không xác định.');
+    }
+}
+
+export const changePassword = async (email, oldPassword, newPassword, token) => {
+    try {
+        const response = await axios.put(`http://localhost:8080/api/users/change-password`, {email, oldPassword, newPassword}, {
+            headers: {Authorization: `Bearer ${token}`}
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error('Đã xảy ra lỗi không xác định.');
+    }
+}
 
 export const getUserById = async (userId, token) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/${userId}`, {
+        const response = await axios.get(`http://localhost:8080/api/users/${userId}`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -17,7 +49,7 @@ export const getUserById = async (userId, token) => {
 
 export const createUserAvatar = async (id, formData, token) => {
     try {
-        const response = await axios.post(`http://localhost:8080/api/public/users/${id}/avatar`,
+        const response = await axios.post(`http://localhost:8080/api/users/${id}/avatar`,
             formData,
             {
                 headers: {
@@ -26,7 +58,7 @@ export const createUserAvatar = async (id, formData, token) => {
                 }
             })
         return {
-            success: response.data.body,
+            success: response.data
         };
     } catch (error) {
         // Trả về lỗi nếu có

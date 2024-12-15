@@ -48,22 +48,19 @@ const LayoutAdmin = () => {
         }
     }, [currentUser, logOut]);
     return (
-        <>
-            <div>
-                {<AuthVerify logOut={logOut}/>}
-                <nav className="navbar navbar-expand-sm navbar-dark bg-dark">
-                    <div className="container">
-                        {showAdminBoard && (
-                            <Link className="navbar-brand" to="/admin">
-                                <h1 className="text-warning">ADMIN BOARD</h1>
-                            </Link>
-                        )}
-                        <div className="d-flex justify-content-end collapse navbar-collapse">
-                            <div className="d-none d-sm-block d-md-block d-lg-block nav-item dropdown">
-                                    <span className="dropdown dropdown-menu-end text-end">
-                                    <a className="text-decoration-none dropdown-toggle text-white" href="#"
-                                       role="button"
-                                    ><i className="bi bi-person-fill"></i> Tài khoản</a>
+        <div>
+            {<AuthVerify logOut={logOut}/>}
+            <nav className="navbar navbar-expand-sm navbar-dark bg-dark">
+                <div className="container">
+                    <Link className="navbar-brand" to="/admin">
+                        <h1 className="text-warning">ADMIN BOARD</h1>
+                    </Link>
+                    <div className="d-flex justify-content-end collapse navbar-collapse">
+                        <div className="d-none d-sm-block d-md-block d-lg-block nav-item dropdown">
+                            <span className="dropdown dropdown-menu-end text-end">
+                                <a className="text-decoration-none dropdown-toggle text-white" href="#"
+                                   role="button"
+                                ><i className="bi bi-person-fill"></i> Tài khoản</a>
                                     <ul className="dropdown-menu" style={{zIndex: 9999}}>
                                         {currentUser ? (
                                             <>
@@ -95,12 +92,10 @@ const LayoutAdmin = () => {
                                         )}
                                     </ul>
                                 </span>
-                            </div>
-
                         </div>
                     </div>
-                </nav>
-            </div>
+                </div>
+            </nav>
             <div className="bg-danger sticky-top">
                 <nav className="container navbar navbar-expand-sm navbar-dark">
                     <div className="container-fluid">
@@ -120,23 +115,45 @@ const LayoutAdmin = () => {
                                     <Link to="/admin/users" className="nav-link" href="#">QUẢN LÝ TÀI KHOẢN</Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link to="/admin/payments" className="nav-link" href="#">QUẢN LÝ THANH TOÁN</Link>
+                                    <Link to="/admin/payments" className="nav-link" href="#">QUẢN LÝ GIAO DỊCH</Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link to="/admin/QRpayment" className="nav-link" href="#">QUẢN LÝ PHƯƠNG THỨC THANH
+                                        TOÁN</Link>
                                 </li>
                                 <div className="d-block d-sm-none d-md-none d-lg-none">
                                     <div className="nav-item dropdown dropdown-menu-end">
                                         <a className="nav-link dropdown-toggle text-white" href="#" role="button"
                                            data-bs-toggle="dropdown"><i className="bi bi-person-fill"></i> Tài khoản</a>
                                         <ul className="dropdown-menu" style={{zIndex: 9999}}>
-                                            <li>
-                                                <Link to="/login" className="dropdown-item" href="#">
-                                                    <i className="bi bi-person-fill"></i> Đăng nhập
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link to="/register" className="dropdown-item" href="#">
-                                                    <i className="bi bi-person-plus-fill"></i> Đăng ký
-                                                </Link>
-                                            </li>
+                                            {currentUser ? (
+                                                <>
+                                                    <li>
+                                                        <Link className="dropdown-item" href="#" to="/profile">
+                                                            <i className="bi bi-person-fill"></i> Trang cá nhân
+                                                        </Link>
+                                                    </li>
+                                                    <li>
+                                                        <a className="dropdown-item" href="#" onClick={logOut}>
+                                                            <i className="bi bi-box-arrow-right"></i> Thoát
+                                                        </a>
+                                                    </li>
+                                                </>
+
+                                            ) : (
+                                                <>
+                                                    <li>
+                                                        <Link to="/login" className="dropdown-item" href="#">
+                                                            <i className="bi bi-person-fill"></i> Đăng nhập
+                                                        </Link>
+                                                    </li>
+                                                    <li>
+                                                        <Link to="/register" className="dropdown-item" href="#">
+                                                            <i className="bi bi-person-plus-fill"></i> Đăng ký
+                                                        </Link>
+                                                    </li>
+                                                </>
+                                            )}
                                         </ul>
                                     </div>
                                 </div>
@@ -146,8 +163,8 @@ const LayoutAdmin = () => {
                 </nav>
             </div>
             <Outlet/>
-            <div className="container-fluid bg-dark d-flex justify-content-center pt-4 pb-3">
-                <div className="row container">
+            <div className="container-fluid bg-dark d-flex justify-content-center">
+                <div className="row container mt-2">
                     <div className="col-sm-3">
                         <h5 className="text-warning">Truyen247</h5>
                         <div>
@@ -167,7 +184,7 @@ const LayoutAdmin = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

@@ -8,6 +8,7 @@ import {timeSince} from "../utils/timeUtils";
 import {addFavorite, checkIsFavorite, removeFavorite} from "../../services/favoriteService";
 import {getUserId} from "../utils/auth";
 import {addComment, deleteComment, fetchComments, replyToComment} from "../../services/commentService";
+import avatar from './anonymous.png'
 
 const ComicDetail = () => {
     const [chapterList, setChapterList] = useState([]);
@@ -66,11 +67,8 @@ const ComicDetail = () => {
         }
     }
 
-    const handleAddComment = async () => {
-        if (content.trim() === "") {
-            alert("Bạn hãy nhập nội dung!");
-            return;
-        }
+    const handleAddComment = async (e) => {
+        e.preventDefault();
         const comment = {comicId, userId, content};
         try {
             const data = await addComment(comment, token);
@@ -111,17 +109,17 @@ const ComicDetail = () => {
     const minChapter = chapterList.find(chapter => chapter.chapterNumber === minChapterNumber);
     const maxChapter = chapterList.find(chapter => chapter.chapterNumber === maxChapterNumber);
 
-    useEffect(() => {
-        // Kiểm tra xem truyện này có được yêu thích hay không
-        const fetchIsFavorite = async () => {
-            try {
-                const response = await checkIsFavorite(getUserId(), comicId, token);
-                setIsFavorite(response.data); // true hoặc false
-            } catch (error) {
-                console.error("Error checking favorite status:", error);
-            }
-        };
+    // Kiểm tra xem truyện này có được yêu thích hay không
+    const fetchIsFavorite = async () => {
+        try {
+            const response = await checkIsFavorite(getUserId(), comicId, token);
+            setIsFavorite(response.data); // true hoặc false
+        } catch (error) {
+            console.error("Error checking favorite status:", error);
+        }
+    };
 
+    useEffect(() => {
         fetchIsFavorite();
     }, [comicId]);
 
@@ -131,9 +129,11 @@ const ComicDetail = () => {
             if (isFavorite) {
                 // Gửi yêu cầu xóa yêu thích
                 await removeFavorite(getUserId(), comicId, token);
+                await loadComic();
             } else {
                 // Gửi yêu cầu thêm yêu thích
                 await addFavorite(getUserId(), comicId, token);
+                await loadComic();
             }
 
             // Đảo trạng thái yêu thích
@@ -164,6 +164,7 @@ const ComicDetail = () => {
     const loadComic = async () => {
         try {
             const data = await getComicById(comicId);
+            console.log(data)
             setComicDetail(data);
         } catch (error) {
             console.log(error.message);
@@ -266,7 +267,7 @@ const ComicDetail = () => {
                         {/* Avatar */}
                         <div className="col-auto">
                             <img
-                                src={comment.user.picture}
+                                src={comment.user.picture === null ? avatar : comment.user.picture}
                                 alt="Avatar"
                                 className="rounded-circle img-fluid"
                                 style={{width: "40px", height: "40px"}}
@@ -367,11 +368,11 @@ const ComicDetail = () => {
         });
     };
     return (
-        <div className="container bg-dark p-5">
-            <span> <Link to="/" className="text-decoration-none">Trang chủ </Link>
+        <div className="container bg-dark pt-1 pb-1">
+            <p><Link to="/" className="text-decoration-none">Trang chủ </Link>
                 <i className="bi bi-chevron-double-right small"></i>
                 <span className="text-warning"> Chi tiết truyện</span>
-            </span>
+            </p>
             <h5 className="text-center mt-3">{comicDetail?.name}</h5>
             <div className="text-center mt-3">
                 <span>[Cập nhật lúc: {new Date(comicDetail?.updateAt).toLocaleString()}]</span>
@@ -381,11 +382,16 @@ const ComicDetail = () => {
                     <img className="col-12 card" loading="lazy" src={comicDetail?.thumbnail}/></div>
                 <div className="col-0 col-sm-0 col-md-0 col-lg-6 mt-3 d-flex">
                     <div className="pe-3">
-                        <span className="d-block text-warning"><i className="bi bi-person-fill"></i>Tên khác:</span>
-                        <span className="d-block text-warning mt-3"><i className="bi bi-person-fill"></i>Tác giả:</span>
+                        <span className="d-block text-warning"><i className="bi bi-person-fill"></i> Tên khác:</span>
+                        <span className="d-block text-warning mt-3"><i
+                            className="bi bi-person-fill"></i> Tác giả:</span>
                         <span className="d-block text-warning mt-3"><i className="bi bi-wifi"></i> Tình trạng: </span>
                         <span className="d-block text-warning mt-3"><i
                             className="bi bi-tags-fill"></i> Thể loại: </span>
+                        <span className="d-block text-warning mt-3"><i className="bi bi-eye me-1 text-warning"></i> Lượt xem: </span>
+                        <span className="d-block text-warning mt-3"><i
+                            className="bi bi-heart-fill me-1 text-warning"></i> Lượt thích: </span>
+
                         <button onClick={() => handleNavigateMinChapter()} type="button"
                                 className="btn btn-outline-warning d-block mt-3">Đọc từ đầu
                         </button>
@@ -400,6 +406,8 @@ const ComicDetail = () => {
                         <span className="d-block mt-3">{genreList?.map((genre, index) => (
                             <span key={index}>{genre.name}{index !== genreList.length - 1 && " - "}</span>
                         ))}</span>
+                        <span className="d-block mt-3"> {comicDetail?.views === null ? 0 : comicDetail?.views}</span>
+                        <span className="d-block mt-3"> {comicDetail?.favorites}</span>
                         <button type="button"
                                 onClick={handleFavoriteClick}
                                 className={`btn ${isFavorite ? "btn-warning" : "btn-outline-warning "} d-block mt-3`}><i
@@ -502,23 +510,23 @@ const ComicDetail = () => {
                 </div>
             </div>
             <div className="mt-3">
-                <div className="mb-3 mt-3">
+                <form onSubmit={handleAddComment}>
                     <label htmlFor="comment">Comments:</label>
                     <textarea
                         value={content}
+                        required
                         onChange={(e) => setContent(e.target.value)}
                         className="form-control" rows="3"
                         id="comment" name="text"
                     >
-
                         </textarea>
-                </div>
-                <button onClick={handleAddComment} className="btn btn-outline-warning">Bình luận</button>
+                    <button className="btn btn-outline-warning mt-2">Bình luận</button>
+                </form>
             </div>
             <div>
                 <div className="mt-3">
                     <button type="button" className="btn btn-outline-warning" data-bs-toggle="collapse"
-                            data-bs-target="#demo"><i class="bi bi-chat-dots-fill"></i> Xem các bình luận
+                            data-bs-target="#demo"><i className="bi bi-chat-dots-fill"></i> Xem các bình luận
                     </button>
                     <div id="demo" className="collapse">
                         <div className="mt-4">

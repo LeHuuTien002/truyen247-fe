@@ -1,7 +1,7 @@
 // components/Alert.js
 import React, {useEffect} from 'react';
 
-const Alert = ({message, type = 'success', duration = 3000, onClose}) => {
+const Alert = ({message, type = 'success', duration = 2000, onClose}) => {
     useEffect(() => {
         // Tự động ẩn thông báo sau thời gian `duration`
         const timer = setTimeout(() => {

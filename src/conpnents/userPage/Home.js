@@ -35,6 +35,7 @@ const Home = () => {
     const loadComic = async () => {
         try {
             const data = await getAllComicsIsActive();
+            console.log(data)
             setComicList(data);
         } catch (error) {
             console.log(error.message)
@@ -50,6 +51,7 @@ const Home = () => {
     const fetchRecentLogsByUser = async () => {
         try {
             const data = await getRecentLogsByUser(getUserId(), token);
+            console.log("history:", data);
             setHistoryList(data); // Cập nhật danh sách yêu thích
         } catch (error) {
             console.error("Error fetching history comics:", error);
@@ -75,9 +77,8 @@ const Home = () => {
     };
 
     return (
-        <div className="bg-dark container">
-            <div>
-                <div className="container pt-3">
+        <div className="bg-dark container pt-1 pb-1">
+                <div className="container">
                     <h3 className="text-warning">Truyen247 đề cử</h3>
                     <div id="demo" className="carousel slide mt-3" data-bs-ride="carousel">
                         <div className="carousel-indicators">
@@ -135,7 +136,7 @@ const Home = () => {
                     <div className="row">
                         <div className="col-12 col-sm-12 col-md-12 col-lg-8 mt-3">
                             <h5 className="text-warning">Truyen247 - Truyện tranh online </h5>
-                            <div className="row">
+                            <div className="row mb-3">
                                 {currentRows?.length > 0 ? (currentRows.map((comic, index) => (
                                     <div key={index} onClick={() => handleNavigateComicDetailClick(comic.id)}
                                          className="col-6 col-sm-6 col-md-4 col-lg-3 mt-3 hover-text">
@@ -147,6 +148,20 @@ const Home = () => {
                                                      alt={comic.name}
                                                      style={{width: "100%"}}/>
                                             </div>
+                                            <div className="view-count d-flex justify-content-center p-1">
+                                                <div>
+                                                    <i className="bi bi-eye me-1 text-warning"></i>
+                                                    <span className="text-warning">{comic.views}</span>
+                                                </div>
+                                                <div className="ms-2">
+                                                    <i className="bi bi-chat-dots-fill me-1 text-warning"></i>
+                                                    <span className="text-warning">{comic.numberOfComment}</span>
+                                                </div>
+                                                <div className="ms-2">
+                                                    <i className="bi bi-heart-fill me-1 text-danger"></i>
+                                                    <span className="text-danger">{comic.favorites}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div className="card-body">
                                             <span className="card-title fs-6"><strong>{comic.name}</strong></span>
@@ -156,31 +171,67 @@ const Home = () => {
                                     <td colSpan="5" className="text-center">Không tìm thấy kết quả</td>
                                 </tr>)}
                             </div>
-                            <nav className="mt-3">
+                            <nav>
                                 <ul className="pagination justify-content-center">
+                                    {/* Nút Previous */}
                                     <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                                         <button className="page-link" onClick={() => handleClick(currentPage - 1)}>
-                                            Previous
+                                            <i className="bi bi-chevron-left"></i> {/* Mũi tên trái */}
                                         </button>
                                     </li>
 
-                                    {Array.from({length: totalPages}, (_, i) => (
-                                        <li
-                                            key={i}
-                                            className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-                                        >
-                                            <button
-                                                className="page-link"
-                                                onClick={() => handleClick(i + 1)}
-                                            >
-                                                {i + 1}
-                                            </button>
-                                        </li>
-                                    ))}
+                                    {/* Trang đầu tiên */}
+                                    {currentPage > 3 && (
+                                        <>
+                                            <li className="page-item">
+                                                <button className="page-link" onClick={() => handleClick(1)}>
+                                                    1
+                                                </button>
+                                            </li>
+                                            <li className="page-item disabled">
+                                                <span className="page-link">...</span>
+                                            </li>
+                                        </>
+                                    )}
 
+                                    {/* Các trang xung quanh trang hiện tại */}
+                                    {Array.from({length: totalPages}, (_, i) => {
+                                        const page = i + 1;
+                                        if (
+                                            page === 1 ||
+                                            page === totalPages ||
+                                            (page >= currentPage - 2 && page <= currentPage + 2)
+                                        ) {
+                                            return (
+                                                <li key={i}
+                                                    className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                                                    <button className="page-link" onClick={() => handleClick(page)}>
+                                                        {page}
+                                                    </button>
+                                                </li>
+                                            );
+                                        }
+                                        return null;
+                                    })}
+
+                                    {/* Trang cuối cùng */}
+                                    {currentPage < totalPages - 2 && (
+                                        <>
+                                            <li className="page-item disabled">
+                                                <span className="page-link">...</span>
+                                            </li>
+                                            <li className="page-item">
+                                                <button className="page-link" onClick={() => handleClick(totalPages)}>
+                                                    {totalPages}
+                                                </button>
+                                            </li>
+                                        </>
+                                    )}
+
+                                    {/* Nút Next */}
                                     <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                                         <button className="page-link" onClick={() => handleClick(currentPage + 1)}>
-                                            Next
+                                            <i className="bi bi-chevron-right"></i> {/* Mũi tên phải */}
                                         </button>
                                     </li>
                                 </ul>
@@ -199,12 +250,31 @@ const Home = () => {
                             {historyList?.length > 0 ? (historyList.map((history) => (
                                 <div key={history.id}
                                      className="row mt-4 hover-text">
-                                    <div className="col-3 col-sm-3 col-md-3 col-lg-4 comic-card"
+                                    <div className="col-3 col-sm-3 col-md-3 col-lg-4"
                                          onClick={() => handleNavigateComicDetailClick(history.comicId)}>
-                                        <img className="col-12 card comic-image"
-                                             loading="lazy"
-                                             src={history.comicThumbnail}
-                                             alt={history.comicName}/>
+                                        <div className="card comic-card">
+                                            <div className="image-container">
+                                                <img className="card-img-top object-fit-cover comic-image"
+                                                     loading="lazy"
+                                                     src={history.comicThumbnail}
+                                                     alt={history.comicName}
+                                                     style={{width: "100%"}}/>
+                                            </div>
+                                            <div className="view-count d-flex justify-content-center p-1">
+                                                <div>
+                                                    <i className="bi bi-eye me-1 text-warning"></i>
+                                                    <span className="text-warning">{history.views}</span>
+                                                </div>
+                                                <div className="ms-1">
+                                                    <i className="bi bi-chat-dots-fill me-1 text-warning"></i>
+                                                    <span className="text-warning">{history.numberOfComment}</span>
+                                                </div>
+                                                <div className="ms-1">
+                                                    <i className="bi bi-heart-fill me-1 text-danger"></i>
+                                                    <span className="text-danger">{history.favorites}</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="col-9 col-sm-9 col-md-9 col-lg-8">
                                         <h6>{history.comicName}</h6>
@@ -224,8 +294,6 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-
         </div>
     )
 }

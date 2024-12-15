@@ -10,6 +10,7 @@ const SearchResults = () => {
     const loadAllComicsBySearchTerm = async () => {
         try {
             const data = await searchComics(searchTerm);
+            console.log("search", data)
             setComicList(data);
         } catch (error) {
             console.log(error.message)
@@ -24,7 +25,7 @@ const SearchResults = () => {
     };
 
     return (
-        <div className="container bg-dark p-5">
+        <div className="container bg-dark pt-1 pb-1">
             <span> <Link to="/" className="text-decoration-none">Trang chủ </Link>
                 <i className="bi bi-chevron-double-right small"></i>
                 <span className="text-warning"> Tìm kiếm</span>
@@ -41,6 +42,20 @@ const SearchResults = () => {
                                      src={comic.thumbnail}
                                      alt={comic.name}
                                      style={{width: "100%"}}/>
+                            </div>
+                            <div className="view-count d-flex justify-content-center p-1">
+                                <div>
+                                    <i className="bi bi-eye me-1 text-warning"></i>
+                                    <span className="text-warning">{comic.views}</span>
+                                </div>
+                                <div className="ms-2">
+                                    <i className="bi bi-chat-dots-fill me-1 text-warning"></i>
+                                    <span className="text-warning">{comic.numberOfComment}</span>
+                                </div>
+                                <div className="ms-2">
+                                    <i className="bi bi-heart-fill me-1 text-danger"></i>
+                                    <span className="text-danger">{comic.favorites}</span>
+                                </div>
                             </div>
                         </div>
                         <div className="card-body">

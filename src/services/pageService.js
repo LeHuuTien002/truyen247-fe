@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const getPagesByChapterId = async (comicId,token) => {
+const getPagesByChapterId = async (comicId, token) => {
     try {
         const response = await axios.get(`http://localhost:8080/api/comic/chapters/${comicId}`, {
             headers: {
@@ -13,7 +13,7 @@ const getPagesByChapterId = async (comicId,token) => {
     }
 }
 
-const createPage = async (id, formData,token) => {
+const createPage = async (id, formData, token) => {
     try {
         const response = await axios.post(`http://localhost:8080/api/admin/comic/chapter/${id}/create`,
             formData,
@@ -35,40 +35,7 @@ const createPage = async (id, formData,token) => {
         }
     }
 }
-
-const updatePage = async (pageId, pageNumber, imageUrl,token) => {
-    try {
-        const formData = new FormData();
-        // Tạo đối tượng ComicRequest và chuyển thành Blob
-        const pageRequest = {
-            id: pageId,
-            pageNumber: pageNumber
-        };
-        formData.append("pageRequest", new Blob([JSON.stringify(pageRequest)], {type: "application/json"}));
-
-        // Thêm file vào formData
-        formData.append("file", imageUrl);
-        const response = await axios.put(`http://localhost:8080/api/admin/comic/chapter/pages/${pageId}/update`,
-            formData,
-            {
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                }
-            })
-        return {
-            success: response.data.body,
-        };
-    } catch (error) {
-        if (error.response) {
-            throw new Error(error.response.data.message);
-        } else {
-            throw new Error('Đã xảy ra lỗi không xác định.');
-        }
-    }
-}
-
-const deletePage = async (chapterId, pageId,token) => {
+const deletePage = async (chapterId, pageId, token) => {
     try {
         const response = await axios.delete(`http://localhost:8080/api/admin/comic/chapter/${chapterId}/pages/${pageId}`, {
             headers: {
@@ -94,5 +61,18 @@ const getAllPageByChapterId = async (id) => {
     }
 }
 
-export {getPagesByChapterId, createPage, getAllPageByChapterId, updatePage, deletePage};
+const getPageByChapterId = async (id, token) => {
+    try {
+        const response = await axios.get(`http://localhost:8080/api/admin/comic/chapter/${id}/pages`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        })
+        return response.data;
+    } catch (error) {
+        throw new Error("Có lỗi xảy ra khi tải dữ liệu!");
+    }
+}
+
+export {getPagesByChapterId, createPage, getAllPageByChapterId, deletePage, getPageByChapterId};
 

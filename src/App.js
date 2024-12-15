@@ -6,7 +6,7 @@ import RegisterForm from "./conpnents/RegisterForm";
 import LoginForm from "./conpnents/LoginForm";
 import History from "./conpnents/userPage/History";
 import ComicDetail from "./conpnents/userPage/ComicDetail";
-import RePassword from "./conpnents/RePassword";
+import ForgotPassword from "./conpnents/ForgotPassword";
 import AdminRoute from "./conpnents/adminPage/AdminRoute";
 import LayoutAdmin from "./conpnents/layout/LayoutAdmin";
 import Comics from "./conpnents/adminPage/Comics";
@@ -22,6 +22,9 @@ import Profile from "./conpnents/userPage/Profile";
 import Users from "./conpnents/adminPage/Users";
 import Premium from "./conpnents/userPage/Premium";
 import Payment from "./conpnents/adminPage/Payment";
+import ChangePassword from "./conpnents/userPage/ChangePassword";
+import ResetPassword from "./conpnents/ResetPassword";
+import QRPayment from "./conpnents/adminPage/QRPayment";
 
 function App() {
     return (
@@ -34,11 +37,13 @@ function App() {
                     <Route path="history" element={<History/>}/>
                     <Route path="comics/:comicId" element={<ComicDetail/>}/>
                     <Route path='favorites' element={<Favorites/>}/>
-                    <Route path="repassword" element={<RePassword/>}/>
+                    <Route path="forgot-password" element={<ForgotPassword/>}/>
+                    <Route path="reset-password" element={<ResetPassword/>}/>
                     <Route path="genres" element={<UserGenres/>}/>
                     <Route path="search/:searchTerm" element={<SearchResults/>}/>
                     <Route path="genre/:genreName" element={<UserGenres/>}/>
                     <Route path='profile' element={<Profile/>}/>
+                    <Route path='change-password' element={<ChangePassword/>}/>
                     <Route path='premium' element={<Premium/>}/>
                     <Route path="demo" element={<Demo/>}/>
                 </Route>
@@ -53,6 +58,7 @@ function App() {
                         <Route path="comics/:comicId/chapters/:chapterId/pages" element={<Pages/>}/>
                         <Route path="users" element={<Users/>}/>
                         <Route path="payments" element={<Payment/>}/>
+                        <Route path="QRpayment" element={<QRPayment/>}/>
                     </Route>
                 </Route>
             </Routes>

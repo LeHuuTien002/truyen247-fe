@@ -30,7 +30,8 @@ const Layout = () => {
 
     // Hàm đăng xuất được ghi nhớ (memoized) để tránh render lại không cần thiết
     const logOut = useCallback(() => {
-        dispatch(logout());// xóa thông báo khi thay đổi vị trí
+        dispatch(logout());
+        navigate('/')
     }, [dispatch])
 
     // useEffect để xử lý vai trò của người dùng và sự kiện logout từ EventBus
@@ -149,14 +150,15 @@ const Layout = () => {
                                 </div>
                             </div>
                             <div className="d-none d-sm-none d-md-block d-lg-block">
-                                <Link to={'/premium'} className="text-decoration-none text-white me-3 d-flex" title="Nâng cấp tài khoản">
+                                <Link to={'/premium'} className="text-decoration-none text-default hover-text me-3 d-flex"
+                                      title="Nâng cấp tài khoản">
                                     <i className="bi bi-magic"></i>
                                     <span className="ms-1"> Premium</span>
                                 </Link>
                             </div>
                             <div className="d-none d-sm-block d-md-block d-lg-block nav-item dropdown">
                                 <span className=" dropdown-menu-end text-end">
-                                    <a className="text-decoration-none dropdown-toggle text-white " href="#"
+                                    <a className="text-decoration-none dropdown-toggle text-default hover-text" href="#"
                                        role="button"><i className="bi bi-person-fill"></i> Tài khoản</a>
                                     <ul className="dropdown-menu" style={{zIndex: 9999}}>
                                         {currentUser ? (
@@ -243,7 +245,7 @@ const Layout = () => {
                                     </ul>
                                 </li>
                                 <div className="d-flex d-block col d-sm-none d-md-none d-lg-none">
-                                    <Link to={'/premium'} className="text-decoration-none text-white me-3"
+                                    <Link to={'/premium'} className="text-decoration-none hover-text me-3"
                                           title="Nâng cấp tài khoản">
                                         <i className="bi bi-magic"></i>
                                         <span> Premium</span>

@@ -95,7 +95,7 @@ const Users = () => {
     };
 
     return (
-        <div className="container bg-dark p-5">
+        <div className="container bg-dark pt-5 pb-5">
             <h2 className="text-warning text-center">DANH SÁCH NGƯỜI DÙNG</h2>
             <SearchBar onSearch={handleSearch}/>
             <div className="table-responsive">
@@ -263,29 +263,64 @@ const Users = () => {
                 </table>
                 <nav>
                     <ul className="pagination justify-content-center">
+                        {/* Nút Previous */}
                         <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={() => handleClick(currentPage - 1)}>
-                                Previous
+                                <i className="bi bi-chevron-left"></i> {/* Mũi tên trái */}
                             </button>
                         </li>
 
-                        {Array.from({length: totalPages}, (_, i) => (
-                            <li
-                                key={i}
-                                className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-                            >
-                                <button
-                                    className="page-link"
-                                    onClick={() => handleClick(i + 1)}
-                                >
-                                    {i + 1}
-                                </button>
-                            </li>
-                        ))}
+                        {/* Trang đầu tiên */}
+                        {currentPage > 3 && (
+                            <>
+                                <li className="page-item">
+                                    <button className="page-link" onClick={() => handleClick(1)}>
+                                        1
+                                    </button>
+                                </li>
+                                <li className="page-item disabled">
+                                    <span className="page-link">...</span>
+                                </li>
+                            </>
+                        )}
 
+                        {/* Các trang xung quanh trang hiện tại */}
+                        {Array.from({length: totalPages}, (_, i) => {
+                            const page = i + 1;
+                            if (
+                                page === 1 ||
+                                page === totalPages ||
+                                (page >= currentPage - 2 && page <= currentPage + 2)
+                            ) {
+                                return (
+                                    <li key={i} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                                        <button className="page-link" onClick={() => handleClick(page)}>
+                                            {page}
+                                        </button>
+                                    </li>
+                                );
+                            }
+                            return null;
+                        })}
+
+                        {/* Trang cuối cùng */}
+                        {currentPage < totalPages - 2 && (
+                            <>
+                                <li className="page-item disabled">
+                                    <span className="page-link">...</span>
+                                </li>
+                                <li className="page-item">
+                                    <button className="page-link" onClick={() => handleClick(totalPages)}>
+                                        {totalPages}
+                                    </button>
+                                </li>
+                            </>
+                        )}
+
+                        {/* Nút Next */}
                         <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={() => handleClick(currentPage + 1)}>
-                                Next
+                                <i className="bi bi-chevron-right"></i> {/* Mũi tên phải */}
                             </button>
                         </li>
                     </ul>

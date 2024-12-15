@@ -3,11 +3,11 @@ import React, {useEffect, useState} from "react";
 import {
     createPage,
     deletePage,
-    getAllPageByChapterId,
-    getPagesByChapterId,
-    updatePage
+    getPageByChapterId,
+    getPagesByChapterId
 } from "../../services/pageService";
 import Alert from "../utils/Alert";
+import '../../css/Loading.css'
 import SearchBar from "../SearchBar";
 
 const Pages = () => {
@@ -36,9 +36,12 @@ const Pages = () => {
     const [pageId, setPageId] = useState(null);
     const [chapter, setChapter] = useState(null);
     const [inputKey, setInputKey] = useState(Date.now()); // Key để làm mới trường file
+    const [files, setFiles] = useState([]);
+    const [previewUrls, setPreviewUrls] = useState([]);
 
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
 
     const handleSearch = (searchTerm) => {
@@ -63,26 +66,29 @@ const Pages = () => {
     }
 
     const loadChapter = async () => {
+        setLoading(true);
         try {
             const data = await getPagesByChapterId(chapterId, token);
             setChapter(data);
         } catch (error) {
             setErrorMessage(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     const loadPage = async () => {
+        setLoading(true);
         try {
-            const data = await getAllPageByChapterId(chapterId, token);
+            const data = await getPageByChapterId(chapterId, token);
             const sortedData = data.sort((a, b) => b.pageNumber - a.pageNumber);
             setPageList(sortedData);
         } catch (error) {
             setErrorMessage(error.message);
+        } finally {
+            setLoading(false)
         }
     };
-
-    const [files, setFiles] = useState([]);
-    const [previewUrls, setPreviewUrls] = useState([]); // Lưu các URL để hiển thị ảnh xem trước
 
     const handleFileChange = (event) => {
         const selectedFiles = Array.from(event.target.files);
@@ -96,6 +102,7 @@ const Pages = () => {
     const handleCreateSubmit = async (e) => {
         setErrorMessage('');
         setErrorMessage('');
+        setLoading(true)
         e.preventDefault();
         const formData = new FormData();
         for (let i = 0; i < files.length; i++) {
@@ -110,12 +117,15 @@ const Pages = () => {
             handleResetClick();
         } catch (error) {
             setErrorMessage(error.message);
+        } finally {
+            setLoading(false)
         }
     }
 
 
     const handleDelete = async (e) => {
         e.preventDefault();
+        setLoading(true)
         setSuccessMessage('');
         setErrorMessage('');
         try {
@@ -124,6 +134,8 @@ const Pages = () => {
             setSuccessMessage(successMessage);
         } catch (error) {
             setErrorMessage(error.message);
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -137,7 +149,7 @@ const Pages = () => {
         loadPage();
     }, [chapterId]);
     return (
-        <div className="container bg-dark p-5">
+        <div className="container bg-dark pt-5 pb-5">
             <span> <Link to={`/admin/comics/${comicId}/chapters`}
                          className="text-decoration-none">Quản lý chương </Link>
                 <i className="bi bi-chevron-double-right small"></i>
@@ -175,6 +187,13 @@ const Pages = () => {
                                         aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
+                                {loading && (
+                                    <div className="overlay">
+                                        <div className="spinner-border text-warning" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                )}
                                 <form onSubmit={handleCreateSubmit} className="container">
                                     {previewUrls.length > 0 && (
                                         <div className="mb-3">
@@ -205,8 +224,8 @@ const Pages = () => {
                                                key={inputKey}
                                                id="coverPhoto"/>
                                     </div>
-                                    <button type="submit" className="btn btn-outline-warning form-control">Tạo trang
-                                        mới
+                                    <button type="submit"
+                                            className="btn btn-outline-warning form-control">{loading ? 'Đang tạo trang...' : 'Tạo trang mới'}
                                     </button>
                                 </form>
                             </div>
@@ -316,29 +335,64 @@ const Pages = () => {
                     </table>
                     <nav>
                         <ul className="pagination justify-content-center">
+                            {/* Nút Previous */}
                             <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={() => handleClick(currentPage - 1)}>
-                                    Previous
+                                    <i className="bi bi-chevron-left"></i> {/* Mũi tên trái */}
                                 </button>
                             </li>
 
-                            {Array.from({length: totalPages}, (_, i) => (
-                                <li
-                                    key={i}
-                                    className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-                                >
-                                    <button
-                                        className="page-link"
-                                        onClick={() => handleClick(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                </li>
-                            ))}
+                            {/* Trang đầu tiên */}
+                            {currentPage > 3 && (
+                                <>
+                                    <li className="page-item">
+                                        <button className="page-link" onClick={() => handleClick(1)}>
+                                            1
+                                        </button>
+                                    </li>
+                                    <li className="page-item disabled">
+                                        <span className="page-link">...</span>
+                                    </li>
+                                </>
+                            )}
 
+                            {/* Các trang xung quanh trang hiện tại */}
+                            {Array.from({length: totalPages}, (_, i) => {
+                                const page = i + 1;
+                                if (
+                                    page === 1 ||
+                                    page === totalPages ||
+                                    (page >= currentPage - 2 && page <= currentPage + 2)
+                                ) {
+                                    return (
+                                        <li key={i} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                                            <button className="page-link" onClick={() => handleClick(page)}>
+                                                {page}
+                                            </button>
+                                        </li>
+                                    );
+                                }
+                                return null;
+                            })}
+
+                            {/* Trang cuối cùng */}
+                            {currentPage < totalPages - 2 && (
+                                <>
+                                    <li className="page-item disabled">
+                                        <span className="page-link">...</span>
+                                    </li>
+                                    <li className="page-item">
+                                        <button className="page-link" onClick={() => handleClick(totalPages)}>
+                                            {totalPages}
+                                        </button>
+                                    </li>
+                                </>
+                            )}
+
+                            {/* Nút Next */}
                             <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={() => handleClick(currentPage + 1)}>
-                                    Next
+                                    <i className="bi bi-chevron-right"></i> {/* Mũi tên phải */}
                                 </button>
                             </li>
                         </ul>
