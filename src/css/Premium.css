@@ -1,0 +1,6 @@
+.disabled-premium {
+    background-color: #f0f0f0;  /* Màu nền khi disable */
+    opacity: 0.6;  /* Giảm độ sáng của div khi disabled */
+    pointer-events: none;  /* Vô hiệu hóa tất cả các sự kiện chuột */
+    cursor: not-allowed;  /* Thay đổi con trỏ chuột để người dùng biết div không thể tương tác */
+}

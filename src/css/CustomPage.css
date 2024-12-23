@@ -1,0 +1,23 @@
+.comic-reader {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Căn giữa nội dung */
+    gap: 0; /* Loại bỏ khoảng cách giữa các phần tử */
+    padding: 0;
+    margin: 0 auto; /* Căn giữa container trên màn hình */
+}
+
+
+
+.comic-page {
+    margin: 0;
+    padding: 0;
+    width: 100%; /* Đảm bảo các hình ảnh chiếm đầy container */
+}
+
+.comic-page img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0;
+}

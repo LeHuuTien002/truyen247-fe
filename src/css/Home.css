@@ -1,0 +1,104 @@
+.image-container {
+    width: 100%;
+    padding-bottom: 150%; /* Tỷ lệ 4:3, có thể đổi thành 100% nếu muốn ảnh vuông */
+    position: relative;
+    overflow: hidden;
+}
+
+.image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Giữ nguyên tỷ lệ, cắt ảnh cho vừa ô */
+}
+
+.hover-text{
+    color: white;
+    cursor: pointer;
+}
+
+.hover-text:hover {
+    color: #ffc107;
+    cursor: pointer;
+}
+
+.hover-li:hover {
+    background-color: gray;
+    cursor: pointer;
+}
+
+.text-default {
+    color: white;
+}
+
+/* Container chính của card */
+.comic-card {
+    overflow: hidden; /* Đảm bảo ảnh không vượt ra ngoài */
+    border-radius: 10px; /* Bo góc mềm mại */
+    transition: transform 0.4s ease, box-shadow 0.4s ease; /* Hiệu ứng mượt */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng nhẹ ban đầu */
+    position: relative;
+}
+
+/* Hiệu ứng khi hover card */
+.comic-card:hover {
+    transform: scale(1.07); /* Phóng to toàn bộ card */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4); /* Tăng cường đổ bóng */
+}
+
+/* Hình ảnh bên trong card */
+.comic-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px; /* Bo góc ảnh giống card */
+    transition: transform 0.4s ease, filter 0.4s ease; /* Hiệu ứng phóng to và sáng */
+}
+
+/* Hiệu ứng phóng to và sáng hình ảnh khi hover */
+.comic-card:hover .comic-image {
+    transform: scale(1.15); /* Phóng to ảnh bên trong */
+    filter: brightness(1.2); /* Tăng độ sáng ảnh */
+}
+
+/* Hiệu ứng nền mờ khi hover */
+.comic-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3); /* Lớp nền tối */
+    opacity: 0; /* Ẩn nền tối ban đầu */
+    transition: opacity 0.4s ease; /* Hiệu ứng mờ mượt */
+    border-radius: 10px; /* Bo góc giống card */
+    z-index: 1; /* Đảm bảo nằm trên nền nhưng dưới nội dung */
+}
+
+.comic-card:hover::before {
+    opacity: 1; /* Hiển thị lớp nền mờ khi hover */
+}
+
+/* Phần nội dung tên truyện */
+.card-body {
+    position: relative;
+    z-index: 2; /* Đảm bảo nội dung luôn ở trên lớp nền */
+    text-align: center;
+    margin-top: 10px;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff; /* Chữ màu trắng để nổi bật trên nền tối */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7); /* Thêm bóng chữ */
+}
+
+/* Hiển thị menu con khi hover */
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0; /* Gỡ margin mặc định */
+}
+
