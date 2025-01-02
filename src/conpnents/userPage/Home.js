@@ -277,7 +277,7 @@ const Home = () => {
                         </div>
                         <div className="row mb-1 mt-2">
                             <div className="col col-sm col-md col-lg">
-                                <h6 className="text-warning">Top 10 truyện đọc nhiều nhất</h6>
+                                <h6 className="text-warning">Top 5 truyện đọc nhiều nhất</h6>
                             </div>
                         </div>
                         <div className="border p-1">

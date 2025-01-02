@@ -315,13 +315,6 @@ const ComicDetail = () => {
                                 <span
                                     className="me-3"
                                     style={{cursor: "pointer"}}
-                                    onClick={() => alert("Thích")}
-                                >
-                                    Thích
-                                </span>
-                                <span
-                                    className="me-3"
-                                    style={{cursor: "pointer"}}
                                     onClick={() => setReplyTo(comment.id)}
                                 >
                                     Phản hồi
