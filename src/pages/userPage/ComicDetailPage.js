@@ -2,16 +2,16 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {getComicById} from "../../services/comicService";
 import {getAllGenreByComicId} from "../../services/genreService";
-import SearchBar from "../SearchBar";
+import SearchBar from "../../conpnents/SearchBar";
 import {getChaptersByComicId} from "../../services/chapterService";
-import {timeSince} from "../utils/timeUtils";
+import {timeSince} from "../../utils/timeUtils";
 import {addFavorite, checkIsFavorite, removeFavorite} from "../../services/favoriteService";
-import {getUserId} from "../utils/auth";
+import {getUserId} from "../../utils/auth";
 import {addComment, deleteComment, fetchComments, replyToComment} from "../../services/commentService";
-import avatar from './anonymous.png'
-import Pagination from "../utils/Pagination";
+import avatar from '../../assets/anonymous.png'
+import Pagination from "../../utils/Pagination";
 
-const ComicDetail = () => {
+const ComicDetailPage = () => {
     const navigate = useNavigate();
 
     const [chapterList, setChapterList] = useState([]);
@@ -534,4 +534,4 @@ const ComicDetail = () => {
     )
 }
 
-export default ComicDetail;
+export default ComicDetailPage;

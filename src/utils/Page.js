@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../css/CustomPage.css';
+import '../styles/CustomPage.css';
 
 const Page = ({imageSrc}) => {
     return (

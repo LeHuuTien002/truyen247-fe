@@ -1,11 +1,11 @@
 import {Link, useNavigate, useParams} from "react-router-dom";
 import {getComicsByGenre} from "../../services/comicService";
 import React, {useEffect, useState} from "react";
-import '../../css/Home.css';
+import '../../styles/Home.css';
 import {getAllGenreName} from "../../services/genreService";
-import Pagination from "../utils/Pagination";
+import Pagination from "../../utils/Pagination";
 
-const UserGenres = () => {
+const GenrePage = () => {
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -162,4 +162,4 @@ const UserGenres = () => {
     )
 }
 
-export default UserGenres;
+export default GenrePage;

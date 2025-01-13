@@ -1,11 +1,11 @@
 import {Link, useNavigate} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import avatar from './anonymous.png'
-import {getUserId} from "../utils/auth";
+import avatar from '../../assets/anonymous.png'
+import {getUserId} from "../../utils/auth";
 import {createUserAvatar, getUserById} from "../../services/userService";
-import Alert from "../utils/Alert";
+import Alert from "../../utils/Alert";
 
-const Profile = () => {
+const ProfilePage = () => {
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
@@ -199,4 +199,4 @@ const Profile = () => {
     )
 }
 
-export default Profile;
+export default ProfilePage;

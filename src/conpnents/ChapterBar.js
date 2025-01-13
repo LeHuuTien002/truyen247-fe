@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import '../../css/ChapterBar.css';
+import '../styles/ChapterBar.css';
 import ChapterSelector from "./ChapterSelector";
 
 const ChapterBar = ({chapterId, isScrolling, scrollSpeed, setIsScrolling,setScrollSpeed}) => {

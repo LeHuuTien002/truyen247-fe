@@ -1,12 +1,12 @@
 import {Link, useNavigate} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {getUserById} from "../../services/userService";
-import {getUserId} from "../utils/auth";
+import {getUserId} from "../../utils/auth";
 import {createPayment} from "../../services/paymentService";
 import {getAllQRCodes} from "../../services/qrPaymentService";
-import Alert from "../utils/Alert";
+import Alert from "../../utils/Alert";
 
-const Premium = () => {
+const PremiumPage = () => {
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
     const [paymentList, setPaymentList] = useState([]);
@@ -174,7 +174,7 @@ const Premium = () => {
                         </div>
                     </div>
 
-                    {/* Premium Year Plan */}
+                    {/* PremiumPage Year Plan */}
                     <div className="col-12 col-sm-6 col-md-4 mb-4">
                         <div
                             className="card text-center shadow-sm border-success"
@@ -230,7 +230,7 @@ const Premium = () => {
                         </div>
                     </div>
 
-                    {/* Premium Month Plan */}
+                    {/* PremiumPage Month Plan */}
                     <div className="col-12 col-sm-6 col-md-4 mb-4">
                         <div
                             className="card text-center shadow-sm border-success"
@@ -471,4 +471,4 @@ const Premium = () => {
     )
 }
 
-export default Premium;
+export default PremiumPage;

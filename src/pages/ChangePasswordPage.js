@@ -1,9 +1,9 @@
 import {Link} from "react-router-dom";
 import React, {useState} from "react";
-import {changePassword} from "../../services/userService";
+import {changePassword} from "../services/userService";
 import Alert from "../utils/Alert";
 
-const ChangePassword = () => {
+const ChangePasswordPage = () => {
     const token = localStorage.getItem('token');
     const [email, setEmail] = useState("");
     const [oldPassword, setOldPassword] = useState("");
@@ -123,4 +123,4 @@ const ChangePassword = () => {
     )
 }
 
-export default ChangePassword
+export default ChangePasswordPage

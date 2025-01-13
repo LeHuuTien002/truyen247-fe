@@ -6,7 +6,7 @@ import {logout} from "../../actions/auth";
 import EventBus from "../../common/EventBus";
 import AuthVerify from "../../common/AuthVerify";
 import {getAllGenreName} from "../../services/genreService";
-import chunkArray from "../utils/chunkArray";
+import chunkArray from "../../utils/chunkArray";
 import {getAllComicsIsActive} from "../../services/comicService";
 
 const Layout = () => {

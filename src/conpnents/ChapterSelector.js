@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Link, useNavigate, useParams} from "react-router-dom";
-import {getChaptersByComicId} from "../../services/chapterService";
+import {getChaptersByComicId} from "../services/chapterService";
 import {getUserId} from "../utils/auth";
 import useHistoryHandler from "../utils/useHistoryHandler";
 

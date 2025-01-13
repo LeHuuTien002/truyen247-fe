@@ -2,9 +2,9 @@ import React, {useEffect, useState} from "react";
 import {useLocation} from 'react-router-dom';
 import {Link, useNavigate} from "react-router-dom";
 import {resetPassword} from "../services/userService";
-import Alert from "./utils/Alert";
+import Alert from "../utils/Alert";
 
-const ResetPassword = () => {
+const ResetPage = () => {
     const location = useLocation();
     const [newPassword, setNewPassword] = useState("");
     const [token, setToken] = useState(null);
@@ -97,4 +97,4 @@ const ResetPassword = () => {
     );
 };
 
-export default ResetPassword;
+export default ResetPage;

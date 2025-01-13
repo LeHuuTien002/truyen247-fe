@@ -1,10 +1,10 @@
-import SearchBar from "../SearchBar";
+import SearchBar from "../../conpnents/SearchBar";
 import React, {useEffect, useState} from "react";
-import Alert from "../utils/Alert";
+import Alert from "../../utils/Alert";
 import {deleteUser, getAllUser, updateUser} from "../../services/userService";
-import Pagination from "../utils/Pagination";
+import Pagination from "../../utils/Pagination";
 
-const Users = () => {
+const UserPage = () => {
     const token = localStorage.getItem("token");
 
     const [userList, setUserList] = useState([]);
@@ -272,4 +272,4 @@ const Users = () => {
     )
 }
 
-export default Users;
+export default UserPage;

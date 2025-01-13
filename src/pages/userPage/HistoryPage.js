@@ -1,10 +1,10 @@
 import {Link, useNavigate} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import {getUserId} from "../utils/auth";
+import {getUserId} from "../../utils/auth";
 import {getHistoryByUser, removeHistory} from "../../services/historyService";
-import Pagination from "../utils/Pagination";
+import Pagination from "../../utils/Pagination";
 
-const History = () => {
+const HistoryPage = () => {
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
     const [historyList, setHistoryList] = useState([]); // Danh sách truyện yêu thích
@@ -141,4 +141,4 @@ const History = () => {
     )
 }
 
-export default History;
+export default HistoryPage;

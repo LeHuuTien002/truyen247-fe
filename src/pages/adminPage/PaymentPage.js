@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {getPayments, getPendingPayments} from "../../services/paymentService";
-import SearchBar from "../SearchBar";
-import Pagination from "../utils/Pagination";
+import SearchBar from "../../conpnents/SearchBar";
+import Pagination from "../../utils/Pagination";
 
-const Payment = () => {
+const PaymentPage = () => {
     const token = localStorage.getItem("token");
     const [paymentList, setPaymentList] = useState([]);
     const [filteredData, setFilteredData] = useState(paymentList);
@@ -55,7 +55,13 @@ const Payment = () => {
     const fetchPayments = async () => {
         try {
             const data = await getPayments(token);
-            setPaymentList(data);
+            console.log("payments: ", data)
+            const sortedData = [...data].sort((a, b) => {
+                const dateA = new Date(a.createdAt);
+                const dateB = new Date(b.createdAt);
+                return dateB - dateA;
+            });
+            setPaymentList(sortedData);
         } catch (error) {
             setErrorMessage(error.message);
         }
@@ -74,6 +80,7 @@ const Payment = () => {
                     <tr>
                         <th className="col-auto">ID</th>
                         <th className="col-auto">Số tiền</th>
+                        <th className="col-auto">Người dùng</th>
                         <th className="col-auto">Mã thanh toán</th>
                         <th className="col-auto">Trạng thái</th>
                         <th className="col-auto">Ngày tạo</th>
@@ -84,6 +91,7 @@ const Payment = () => {
                         <tr className="cursor-pointer" key={index}>
                             <td>{payment.id}</td>
                             <td>{payment.amount}</td>
+                            <td>{payment.email}</td>
                             <td>{payment.paymentCode}</td>
                             <td className={
                                 payment.status === 'PENDING' ? 'text-warning' :
@@ -111,4 +119,4 @@ const Payment = () => {
     )
 }
 
-export default Payment
+export default PaymentPage

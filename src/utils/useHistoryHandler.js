@@ -1,5 +1,5 @@
 import {useEffect} from 'react';
-import {checkHistoryExists, createHistory, updateHistory} from "../../services/historyService";
+import {checkHistoryExists, createHistory, updateHistory} from "../services/historyService";
 
 const useHistoryHandler = ({userId, comicId, chapterId, token}) => {
     useEffect(() => {

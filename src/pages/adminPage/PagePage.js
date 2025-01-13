@@ -6,12 +6,12 @@ import {
     getPageByChapterId,
     getPagesByChapterId
 } from "../../services/pageService";
-import Alert from "../utils/Alert";
-import '../../css/Loading.css'
-import SearchBar from "../SearchBar";
-import Pagination from "../utils/Pagination";
+import Alert from "../../utils/Alert";
+import '../../styles/Loading.css'
+import SearchBar from "../../conpnents/SearchBar";
+import Pagination from "../../utils/Pagination";
 
-const Pages = () => {
+const PagePage = () => {
     const token = localStorage.getItem("token");
     const [pageList, setPageList] = useState([]);
     const [filteredData, setFilteredData] = useState(pageList);
@@ -345,4 +345,4 @@ const Pages = () => {
     )
 }
 
-export default Pages;
+export default PagePage;

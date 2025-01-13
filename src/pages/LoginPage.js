@@ -4,11 +4,11 @@ import {useDispatch, useSelector} from "react-redux";
 
 import {login, loginWithGoogle} from "../actions/auth";
 
-import Alert from "./utils/Alert";
+import Alert from "../utils/Alert";
 import {setMessage} from "../actions/message";
 import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google";
 
-const LoginForm = () => {
+const LoginPage = () => {
     let navigate = useNavigate();
 
     const [email, setEmail] = useState("");
@@ -166,4 +166,4 @@ const LoginForm = () => {
     )
 }
 
-export default LoginForm;
+export default LoginPage;

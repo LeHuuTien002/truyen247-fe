@@ -1,10 +1,10 @@
-import Alert from "../utils/Alert";
+import Alert from "../../utils/Alert";
 import React, {useEffect, useState} from "react";
 import {createQRCode, deleteQRCode, getAllQRCodes, updateQRCode} from "../../services/qrPaymentService";
-import SearchBar from "../SearchBar";
-import Pagination from "../utils/Pagination";
+import SearchBar from "../../conpnents/SearchBar";
+import Pagination from "../../utils/Pagination";
 
-const QRPayment = () => {
+const QRPaymentPage = () => {
     const [qrPaymentList, setQrPaymentList] = useState([]);
     const [filteredData, setFilteredData] = useState(qrPaymentList);
     const [currentPage, setCurrentPage] = useState(1);
@@ -440,4 +440,4 @@ const QRPayment = () => {
     )
 }
 
-export default QRPayment;
+export default QRPaymentPage;

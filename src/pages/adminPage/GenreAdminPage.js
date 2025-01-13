@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {createGenre, deleteGenre, getAllGenre, updateGenre} from "../../services/genreService";
-import Alert from "../utils/Alert";
-import SearchBar from "../SearchBar";
-import Pagination from "../utils/Pagination";
+import Alert from "../../utils/Alert";
+import SearchBar from "../../conpnents/SearchBar";
+import Pagination from "../../utils/Pagination";
 
-const Genres = () => {
+const GenreAdminPage = () => {
     const token = localStorage.getItem("token");
     const [genreList, setGenreList] = useState([]);
     const [filteredData, setFilteredData] = useState(genreList);
@@ -340,4 +340,4 @@ const Genres = () => {
     );
 };
 
-export default Genres;
+export default GenreAdminPage;

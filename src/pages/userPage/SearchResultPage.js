@@ -2,7 +2,7 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {searchComics} from "../../services/comicService";
 
-const SearchResults = () => {
+const SearchResultPage = () => {
     const {searchTerm} = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -81,4 +81,4 @@ const SearchResults = () => {
     );
 };
 
-export default SearchResults;
+export default SearchResultPage;

@@ -1,11 +1,11 @@
 import {useParams} from "react-router-dom";
 import {getAllPageByChapterId} from "../../services/pageService";
 import React, {useEffect, useState} from "react";
-import Page from "../utils/Page";
-import "../../css/CustomPage.css";
-import ChapterBar from "./ChapterBar";
+import Page from "../../utils/Page";
+import "../../styles/CustomPage.css";
+import ChapterBar from "../../conpnents/ChapterBar";
 
-const ReadPages = () => {
+const ReadPage = () => {
     const token = localStorage.getItem("token");
     const [pageList, setPageList] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -62,4 +62,4 @@ const ReadPages = () => {
     );
 };
 
-export default ReadPages;
+export default ReadPage;

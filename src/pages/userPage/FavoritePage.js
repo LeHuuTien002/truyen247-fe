@@ -1,10 +1,10 @@
 import {Link, useNavigate} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import {getUserId} from "../utils/auth";
+import {getUserId} from "../../utils/auth";
 import {getFavorites, removeFavorite} from "../../services/favoriteService";
-import Pagination from "../utils/Pagination";
+import Pagination from "../../utils/Pagination";
 
-const Favorites = () => {
+const FavoritePage = () => {
     const token = localStorage.getItem("token");
     const [favorites, setFavorites] = useState([]); // Danh sách truyện yêu thích
     const [filteredData, setFilteredData] = useState(favorites);
@@ -133,4 +133,4 @@ const Favorites = () => {
         </div>
     );
 }
-export default Favorites;
+export default FavoritePage;

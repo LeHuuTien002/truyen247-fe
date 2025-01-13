@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {createComic, deleteComic, getAllComics, updateComic} from "../../services/comicService";
-import Alert from "../utils/Alert";
-import SearchBar from "../SearchBar";
+import Alert from "../../utils/Alert";
+import SearchBar from "../../conpnents/SearchBar";
 import {Link} from "react-router-dom";
 import Select from "react-select";
 import {getAllGenre, getAllGenreByComicId} from "../../services/genreService";
-import '../../css/Loading.css'
-import Pagination from "../utils/Pagination";
+import '../../styles/Loading.css'
+import Pagination from "../../utils/Pagination";
 
 const customStyles = {
     control: (base) => ({
@@ -46,7 +46,7 @@ const customStyles = {
         },
     }),
 };
-const Comics = () => {
+const ComicPage = () => {
     const token = localStorage.getItem("token");
 
     const [comicList, setComicList] = useState([]);
@@ -651,4 +651,4 @@ const Comics = () => {
     )
 }
 
-export default Comics;
+export default ComicPage;

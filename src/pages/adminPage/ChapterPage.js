@@ -1,16 +1,16 @@
 import React, {useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
 import {getInfoComicForChapterList} from "../../services/comicService";
-import Alert from "../utils/Alert";
+import Alert from "../../utils/Alert";
 import {
     createChapter,
     deleteChapter, getAllChapter,
     updateChapterByComicId
 } from "../../services/chapterService";
-import SearchBar from "../SearchBar";
-import Pagination from "../utils/Pagination";
+import SearchBar from "../../conpnents/SearchBar";
+import Pagination from "../../utils/Pagination";
 
-const Chapters = () => {
+const ChapterPage = () => {
     const token = localStorage.getItem("token");
     const [chapterList, setChapterList] = useState([]);
     const [filteredData, setFilteredData] = useState(chapterList);
@@ -408,4 +408,4 @@ const Chapters = () => {
     );
 }
 
-export default Chapters;
+export default ChapterPage;

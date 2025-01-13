@@ -1,62 +1,62 @@
-import './App.css';
+import './styles/App.css';
 import {Route, Routes} from "react-router-dom";
 import Layout from "./conpnents/layout/Layout";
-import Home from "./conpnents/userPage/Home";
-import RegisterForm from "./conpnents/RegisterForm";
-import LoginForm from "./conpnents/LoginForm";
-import History from "./conpnents/userPage/History";
-import ComicDetail from "./conpnents/userPage/ComicDetail";
+import HomePage from "./pages/userPage/HomePage";
+import RegisterPage from "./pages/userPage/RegisterPage";
+import LoginPage from "./pages/LoginPage";
+import HistoryPage from "./pages/userPage/HistoryPage";
+import ComicDetailPage from "./pages/userPage/ComicDetailPage";
 import ForgotPassword from "./conpnents/ForgotPassword";
-import AdminRoute from "./conpnents/adminPage/AdminRoute";
+import AdminRoute from "./utils/AdminRoute";
 import LayoutAdmin from "./conpnents/layout/LayoutAdmin";
-import Comics from "./conpnents/adminPage/Comics";
-import Genres from "./conpnents/adminPage/Genres";
-import Chapters from "./conpnents/adminPage/Chapters";
-import Pages from "./conpnents/adminPage/Pages";
-import ReadPages from "./conpnents/userPage/ReadPages";
-import Favorites from "./conpnents/userPage/Favorites";
-import UserGenres from "./conpnents/userPage/UserGenres";
-import SearchResults from "./conpnents/userPage/SearchResults";
-import Profile from "./conpnents/userPage/Profile";
-import Users from "./conpnents/adminPage/Users";
-import Premium from "./conpnents/userPage/Premium";
-import Payment from "./conpnents/adminPage/Payment";
-import ChangePassword from "./conpnents/userPage/ChangePassword";
-import ResetPassword from "./conpnents/ResetPassword";
-import QRPayment from "./conpnents/adminPage/QRPayment";
+import ComicPage from "./pages/adminPage/ComicPage";
+import GenreAdminPage from "./pages/adminPage/GenreAdminPage";
+import ChapterPage from "./pages/adminPage/ChapterPage";
+import PagePage from "./pages/adminPage/PagePage";
+import ReadPage from "./pages/userPage/ReadPage";
+import FavoritePage from "./pages/userPage/FavoritePage";
+import GenrePage from "./pages/userPage/GenrePage";
+import SearchResultPage from "./pages/userPage/SearchResultPage";
+import ProfilePage from "./pages/userPage/ProfilePage";
+import UserPage from "./pages/adminPage/UserPage";
+import PremiumPage from "./pages/userPage/PremiumPage";
+import PaymentPage from "./pages/adminPage/PaymentPage";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
+import ResetPage from "./pages/ResetPage";
+import QRPaymentPage from "./pages/adminPage/QRPaymentPage";
 
 function App() {
     return (
         <div className="bg-secondary">
             <Routes>
                 <Route path="/" element={<Layout/>}>
-                    <Route index element={<Home/>}/>
-                    <Route path="register" element={<RegisterForm/>}/>
-                    <Route path="login" element={<LoginForm/>}/>
-                    <Route path="history" element={<History/>}/>
-                    <Route path="comics/:comicId" element={<ComicDetail/>}/>
-                    <Route path='favorites' element={<Favorites/>}/>
+                    <Route index element={<HomePage/>}/>
+                    <Route path="register" element={<RegisterPage/>}/>
+                    <Route path="login" element={<LoginPage/>}/>
+                    <Route path="history" element={<HistoryPage/>}/>
+                    <Route path="comics/:comicId" element={<ComicDetailPage/>}/>
+                    <Route path='favorites' element={<FavoritePage/>}/>
                     <Route path="forgot-password" element={<ForgotPassword/>}/>
-                    <Route path="reset-password" element={<ResetPassword/>}/>
-                    <Route path="genres" element={<UserGenres/>}/>
-                    <Route path="search/:searchTerm" element={<SearchResults/>}/>
-                    <Route path="genre/:genreName" element={<UserGenres/>}/>
-                    <Route path='profile' element={<Profile/>}/>
-                    <Route path='change-password' element={<ChangePassword/>}/>
-                    <Route path='premium' element={<Premium/>}/>
+                    <Route path="reset-password" element={<ResetPage/>}/>
+                    <Route path="genres" element={<GenrePage/>}/>
+                    <Route path="search/:searchTerm" element={<SearchResultPage/>}/>
+                    <Route path="genre/:genreName" element={<GenrePage/>}/>
+                    <Route path='profile' element={<ProfilePage/>}/>
+                    <Route path='change-password' element={<ChangePasswordPage/>}/>
+                    <Route path='premium' element={<PremiumPage/>}/>
                 </Route>
 
-                <Route path="/comics/:comicId/chapters/:chapterId/pages" element={<ReadPages/>}/>
+                <Route path="/comics/:comicId/chapters/:chapterId/pages" element={<ReadPage/>}/>
 
                 <Route path="/admin/" element={<LayoutAdmin/>}>
                     <Route element={<AdminRoute/>}>
-                        <Route path="genres" element={<Genres/>}/>
-                        <Route index path="comics" element={<Comics/>}/>
-                        <Route path="comics/:comicId/chapters" element={<Chapters/>}/>
-                        <Route path="comics/:comicId/chapters/:chapterId/pages" element={<Pages/>}/>
-                        <Route path="users" element={<Users/>}/>
-                        <Route path="payments" element={<Payment/>}/>
-                        <Route path="QRpayment" element={<QRPayment/>}/>
+                        <Route path="genres" element={<GenreAdminPage/>}/>
+                        <Route index path="comics" element={<ComicPage/>}/>
+                        <Route path="comics/:comicId/chapters" element={<ChapterPage/>}/>
+                        <Route path="comics/:comicId/chapters/:chapterId/pages" element={<PagePage/>}/>
+                        <Route path="users" element={<UserPage/>}/>
+                        <Route path="payments" element={<PaymentPage/>}/>
+                        <Route path="QRpayment" element={<QRPaymentPage/>}/>
                     </Route>
                 </Route>
             </Routes>

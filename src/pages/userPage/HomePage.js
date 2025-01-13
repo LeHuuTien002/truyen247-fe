@@ -1,12 +1,12 @@
 import {Link, useNavigate} from "react-router-dom";
 import {getAllComicsIsActive, getTopComicView} from "../../services/comicService";
 import React, {useEffect, useState} from "react";
-import '../../css/Home.css';
+import '../../styles/Home.css';
 import {getRecentLogsByUser, removeHistory} from "../../services/historyService";
-import {getUserId} from "../utils/auth";
-import Pagination from "../utils/Pagination";
+import {getUserId} from "../../utils/auth";
+import Pagination from "../../utils/Pagination";
 
-const Home = () => {
+const HomePage = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
     const [comicList, setComicList] = useState([]);
@@ -323,4 +323,4 @@ const Home = () => {
     )
 }
 
-export default Home;
+export default HomePage;

@@ -1,12 +1,12 @@
 import {Link, useNavigate} from "react-router-dom";
 import React, {useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {loginWithGoogle, register} from "../actions/auth";
-import Alert from "./utils/Alert";
+import {loginWithGoogle, register} from "../../actions/auth";
+import Alert from "../../utils/Alert";
 import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google";
-import {setMessage} from "../actions/message";
+import {setMessage} from "../../actions/message";
 
-const RegisterForm = () => {
+const RegisterPage = () => {
     const {isLoggedIn, user: currentUser} = useSelector((state) => state.auth);
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -212,4 +212,4 @@ const RegisterForm = () => {
     )
 }
 
-export default RegisterForm;
+export default RegisterPage;
